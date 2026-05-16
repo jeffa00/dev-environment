@@ -8,6 +8,6 @@ neovim
 ripgrep
 software-properties-common
 starship
+tree-sitter-cli
 tmux
 unzip
-

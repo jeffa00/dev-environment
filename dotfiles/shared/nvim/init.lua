@@ -114,24 +114,37 @@ require("lazy").setup({
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
+    lazy = false,
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "bash",
-          "json",
-          "lua",
-          "markdown",
-          "markdown_inline",
-          "query",
-          "toml",
-          "vim",
-          "vimdoc",
-          "yaml",
-        },
-        auto_install = true,
-        highlight = { enable = true },
-        indent = { enable = true },
+      local languages = {
+        "bash",
+        "json",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "query",
+        "toml",
+        "vim",
+        "vimdoc",
+        "yaml",
+      }
+
+      local treesitter = require("nvim-treesitter")
+
+      treesitter.setup({
+        install_dir = vim.fn.stdpath("data") .. "/site",
+      })
+
+      local install = treesitter.install(languages)
+      if install and install.wait then
+        install:wait(300000)
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "*",
+        callback = function(args)
+          pcall(vim.treesitter.start, args.buf)
+        end,
       })
     end,
   },
@@ -157,4 +170,3 @@ require("lazy").setup({
     colorscheme = { "catppuccin", "habamax" },
   },
 })
-

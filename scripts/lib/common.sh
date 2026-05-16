@@ -111,12 +111,25 @@ install_ghostty_ubuntu() {
 
 validate_command() {
   local command_name
+  local version_output
   command_name="$1"
 
   if command_exists "$command_name"; then
-    log "$("$command_name" --version 2>/dev/null | head -n 1)"
+    case "$command_name" in
+      tmux)
+        version_output="$("$command_name" -V 2>/dev/null | head -n 1)"
+        ;;
+      *)
+        version_output="$("$command_name" --version 2>/dev/null | head -n 1)"
+        ;;
+    esac
+
+    if [ -n "$version_output" ]; then
+      log "$version_output"
+    else
+      warn "Could not determine version for $command_name"
+    fi
   else
     warn "$command_name is not available on PATH"
   fi
 }
-
