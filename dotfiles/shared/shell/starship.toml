@@ -1,0 +1,35 @@
+add_newline = false
+command_timeout = 1000
+
+format = "$directory$git_branch$git_status$fill$cmd_duration$line_break$character"
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+vimcmd_symbol = "[<](bold yellow)"
+
+[cmd_duration]
+min_time = 500
+format = "[$duration]($style) "
+style = "dimmed white"
+
+[directory]
+truncate_to_repo = false
+truncation_length = 3
+style = "bold blue"
+
+[fill]
+symbol = " "
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "bold purple"
+symbol = " "
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+
+[package]
+disabled = true
+

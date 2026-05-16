@@ -1,0 +1,39 @@
+{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "copyOnSelect": false,
+  "profiles": {
+    "defaults": {
+      "font": {
+        "face": "JetBrainsMono Nerd Font Mono",
+        "size": 14
+      },
+      "opacity": 85,
+      "useAcrylic": true
+    }
+  },
+  "schemes": [
+    {
+      "name": "Jeff Dark",
+      "background": "#121212",
+      "black": "#1f1f28",
+      "blue": "#7fb4ca",
+      "brightBlack": "#54546d",
+      "brightBlue": "#7fb4ca",
+      "brightCyan": "#7aa89f",
+      "brightGreen": "#98bb6c",
+      "brightPurple": "#957fb8",
+      "brightRed": "#e46876",
+      "brightWhite": "#dcd7ba",
+      "brightYellow": "#e6c384",
+      "cursorColor": "#c8c093",
+      "cyan": "#7aa89f",
+      "foreground": "#dcd7ba",
+      "green": "#98bb6c",
+      "purple": "#957fb8",
+      "red": "#e46876",
+      "selectionBackground": "#2d4f67",
+      "white": "#dcd7ba",
+      "yellow": "#e6c384"
+    }
+  ]
+}

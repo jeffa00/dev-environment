@@ -1,0 +1,13 @@
+ca-certificates
+curl
+fd-find
+fontconfig
+fzf
+git
+neovim
+ripgrep
+software-properties-common
+starship
+tmux
+unzip
+

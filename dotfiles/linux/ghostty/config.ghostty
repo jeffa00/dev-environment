@@ -1,0 +1,25 @@
+theme = "light:Horizon Bright,dark:Broadcast"
+
+font-family = "JetBrainsMono NFM Regular"
+
+font-size = 20
+
+window-padding-x = 10
+window-padding-y = 10
+
+window-decoration = true
+
+cursor-style = block
+
+adjust-cell-height = 35%
+
+mouse-scroll-multiplier = 2
+
+copy-on-select = clipboard
+
+window-padding-balance = true
+
+window-save-state = always
+
+background-opacity = 0.8
+
