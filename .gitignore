@@ -1,0 +1,14 @@
+.DS_Store
+
+# Editor temp files
+*.swp
+*.swo
+*~
+.netrwhist
+Session.vim
+
+# Local editor/workspace state
+.nvimlog
+.vscode/
+.vscode-test/
+.idea/
