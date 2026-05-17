@@ -1,66 +1,70 @@
 # dev-environment
 
-Cross-platform terminal and editor environment for macOS, Ubuntu, and WSL.
+Bootstrap repo for a personal terminal/editor environment on macOS, Ubuntu, and Ubuntu on WSL. It installs the in-scope packages for each platform and links the tracked config in this repo into your home directory.
 
-## Scope
+This repo manages the terminal/editor layer only. It does **not** try to do full machine provisioning, manage VS Code, or remove unrelated packages.
 
-This repo manages:
-
-- macOS `zsh` config
-- Ubuntu/WSL `bash` config
-- Starship prompt config
-- tmux config
-- full Neovim config
-- pinned Neovim plugin versions via `lazy-lock.json`
-- Ghostty config for macOS and Ubuntu
-- Windows Terminal settings template for WSL
-
-It is designed to be **safe to re-run**. Existing unmanaged files are backed up once before managed symlinks are created.
-
-## Supported targets
+## Supported platforms
 
 - macOS
+- Ubuntu
 - Ubuntu on WSL
-- standalone Ubuntu
 
-## Usage
+## What it manages
 
-Run the top-level setup script:
+The setup links tracked config into standard home-directory locations such as shell startup files, `~/.tmux.conf`, `~/.config/nvim`, `~/.config/starship.toml`, Ghostty config, and, on WSL with opt-in, Windows Terminal `settings.json`.
+
+- package install via `Brewfile` on macOS
+- package install via `packages/apt.txt` on Ubuntu and WSL
+- shared `tmux`, Neovim, and Starship config in `dotfiles/shared/`
+- macOS `zsh` and Ghostty config in `dotfiles/macos/`
+- Ubuntu `bash` and Ghostty config in `dotfiles/linux/`
+- optional Windows Terminal settings template for WSL in `dotfiles/wsl/windows-terminal/`
+- pinned Neovim plugins via `dotfiles/shared/nvim/lazy-lock.json`
+- JetBrains Mono Nerd Font
+
+## Quick start
 
 ```bash
 bash scripts/setup.sh
-```
-
-Dry run:
-
-```bash
 bash scripts/setup.sh --dry-run
 ```
 
-On WSL, optionally apply the tracked Windows Terminal settings template too:
+WSL can also link the tracked Windows Terminal settings template:
 
 ```bash
 bash scripts/setup.sh --apply-windows-terminal
+bash scripts/setup.sh --dry-run --apply-windows-terminal
 ```
 
-## Package notes
+## Safe re-runs
 
-- macOS uses `Brewfile`
-- Ubuntu/WSL uses `packages/apt.txt`
-- Neovim treesitter support requires **`tree-sitter-cli`**, which is included in the managed package manifests
-- The setup also installs **JetBrains Mono Nerd Font**
+Re-running `scripts/setup.sh` is expected.
+
+- existing correct symlinks are left in place
+- conflicting managed destinations are moved to timestamped `*.backup.YYYYMMDD-HHMMSS` paths before linking
+- the setup installs missing in-scope tools and relinks managed config
+- it does not uninstall unrelated software or do cleanup by default
+
+## Shared core vs platform overlays
+
+- `dotfiles/shared/` is the common core: `tmux`, Neovim, and Starship
+- `dotfiles/macos/` adds macOS shell and Ghostty config
+- `dotfiles/linux/` adds Ubuntu shell and Ghostty config
+- `dotfiles/wsl/` adds the Windows-side Terminal overlay used with WSL
+- `scripts/setup.sh` detects the platform and dispatches to the matching setup script
 
 ## Notes
 
-- The script installs `JetBrains Mono Nerd Font`.
-- Ghostty is installed on macOS and standalone Ubuntu.
-- WSL uses Windows Terminal rather than Ghostty.
-- The first Neovim run may install or update treesitter parsers.
-- Plugin versions are pinned in `dotfiles/shared/nvim/lazy-lock.json`.
-- Oh My Zsh removal is intentionally **not** part of the setup flow. If you migrate away from it successfully, remove it later as an optional cleanup step.
+- Ghostty is part of the managed setup on macOS and standalone Ubuntu, not WSL
+- the first Neovim launch may finish plugin or treesitter bootstrap work
+- Oh My Zsh removal is intentionally out of scope; only clean it up after the managed shell setup is working
 
-## Current test status
+## Documentation
 
-- macOS setup has been exercised successfully end-to-end
-- A deprecated Homebrew tap reference was removed from the `Brewfile`
-- The Neovim config was updated for the current `nvim-treesitter` API rewrite
+This README is the quick entry point. Deeper setup docs live at:
+
+- [`docs/index.md`](docs/index.md)
+- [`docs/setup/setup.md`](docs/setup/setup.md)
+- [`docs/setup/repo-layout.md`](docs/setup/repo-layout.md)
+- [`docs/setup/maintenance.md`](docs/setup/maintenance.md)
