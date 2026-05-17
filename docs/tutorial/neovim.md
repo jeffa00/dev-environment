@@ -30,7 +30,7 @@ Recommended habit: **start Neovim from the project or notes directory you want t
 That matters because Telescope searches the current working directory. For example:
 
 ```bash
-cd ~/Documents/ai-notes
+cd ~/path/to/notes
 nvim .
 ```
 
@@ -159,7 +159,7 @@ Start typing part of a filename and press Enter.
 
 Example:
 
-1. `cd ~/Documents/ai-notes`
+1. `cd ~/path/to/notes`
 2. `nvim .`
 3. `Space f f`
 4. type `tmux`
@@ -243,7 +243,7 @@ If you prefer mostly raw markdown, that is fine too. This setup does not force p
 Example:
 
 ```bash
-cd ~/Documents/ai-notes
+cd ~/path/to/notes
 nvim .
 ```
 

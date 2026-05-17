@@ -63,7 +63,7 @@ instead of a full absolute path.
 At the repo root under your home directory, you will typically see something like:
 
 ```text
-~/repos/dev-environment
+~/path/to/project
 ```
 
 Practical takeaway: if a shortened path feels ambiguous, use `pwd` for the full path.

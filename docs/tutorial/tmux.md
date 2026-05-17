@@ -236,7 +236,7 @@ If plain mouse selection is enough, Ghostty's `copy-on-select` can be faster.
 For a repo called `dev-environment`:
 
 ```bash
-cd ~/repos/dev-environment
+cd ~/path/to/project
 tmux new -s dev-env
 ```
 
@@ -393,7 +393,7 @@ If mouse behavior is awkward, fall back to keyboard-driven tmux copy mode with `
 Start a project workspace:
 
 ```bash
-cd ~/repos/dev-environment
+cd ~/path/to/project
 tmux new -s dev-env
 ```
 
