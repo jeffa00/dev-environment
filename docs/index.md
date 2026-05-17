@@ -4,7 +4,7 @@ This section is the landing page for repository documentation.
 
 The setup docs are for **setup, structure, and maintenance** of this environment repo. They explain how to run the bootstrap safely, how the repo is organized, and how to maintain it over time.
 
-Later tutorial docs are different: they are for **using** the installed tools day to day. The `docs/tutorial/` section is reserved for Phase 7 user guides.
+The tutorial docs are for **using** the installed tools day to day after setup is finished.
 
 ## Setup and maintenance
 
@@ -14,4 +14,8 @@ Later tutorial docs are different: they are for **using** the installed tools da
 
 ## Tutorial docs
 
-`docs/tutorial/` is intentionally reserved for Phase 7. That section will hold user-facing guides for tools such as tmux, Neovim, Ghostty, and related workflows.
+- [Tutorial index](./tutorial/index.md) — the entry point for day-to-day tool guides
+- [tmux](./tutorial/tmux.md) — sessions, windows, panes, copy mode, and terminal workflows
+- [Neovim](./tutorial/neovim.md) — everyday editing, search, markdown flow, and tmux interaction
+- [Starship](./tutorial/starship.md) — how to read and work with the managed shell prompt
+- [Ghostty](./tutorial/ghostty.md) — tabs, splits, rendering expectations, and terminal workflow

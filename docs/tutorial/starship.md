@@ -1,0 +1,299 @@
+# Starship
+
+Starship is the managed shell prompt for this environment. It is linked from `dotfiles/shared/shell/starship.toml` to `~/.config/starship.toml`, so the prompt layout is intentionally shared across:
+
+- macOS `zsh`
+- Ubuntu `bash`
+- Ubuntu on WSL `bash`
+
+The shell changes by platform, but the prompt design stays the same.
+
+## Where this prompt comes from
+
+This repo initializes Starship in the platform shell files:
+
+- macOS: `dotfiles/macos/zsh/.zshrc` runs `starship init zsh`
+- Ubuntu and WSL: `dotfiles/linux/bash/.bashrc` runs `starship init bash`
+
+Both files only initialize Starship when the `starship` command exists, so a missing install does not break the shell. On Linux and WSL, the prompt is only loaded for interactive shells, which is why shell scripts do not show it.
+
+## What the prompt looks like
+
+Typical example inside this repo:
+
+```text
+dev-environment/docs/tutorial main ?⇡                         1s
+>
+```
+
+The prompt is two lines:
+
+1. **Context line**: where you are, which Git branch you are on, repo state, and sometimes command duration
+2. **Input line**: the prompt character where you type
+
+This setup also uses `add_newline = false`, so you do **not** get an extra blank line between prompts.
+
+## What each part means
+
+| Part | What you see | What it means |
+| --- | --- | --- |
+| Directory | blue path | Your current directory |
+| Git branch | purple branch name, such as `main` | The current branch when you are inside a Git repo |
+| Git status | yellow compact markers, such as `?`, `+`, `!`, `⇡` | A short summary of working tree and upstream state |
+| Command duration | dim white time on the far right, such as `1s` | Only appears when the last command took at least 500ms |
+| Prompt character | green `>` or red `>` | Green means the last command succeeded; red means it failed |
+
+### Directory segment
+
+The directory segment is intentionally compact:
+
+- bold blue
+- truncated to the last **3** path components
+- no special repo-root expansion
+- no truncation marker
+
+That means a deep path may look like this:
+
+```text
+dev-environment/docs/tutorial
+```
+
+instead of a full absolute path.
+
+At the repo root under your home directory, you will typically see something like:
+
+```text
+~/repos/dev-environment
+```
+
+Practical takeaway: if a shortened path feels ambiguous, use `pwd` for the full path.
+
+### Git branch segment
+
+The branch segment is deliberately simple:
+
+- bold purple
+- branch name only
+- no Git icon
+
+Example:
+
+```text
+main
+```
+
+This keeps the prompt readable even in narrow terminal panes.
+
+### Git status segment
+
+The Git status segment is where most of the useful day-to-day signal lives. This config uses Starship's default status symbols, shown in bold yellow.
+
+Common markers:
+
+- `?` — untracked files
+- `+` — staged changes
+- `!` — modified tracked files
+- `✘` — deleted files
+- `»` — renamed files
+- `=` — merge conflicts
+- `⇡` — branch is ahead of upstream
+- `⇣` — branch is behind upstream
+- `⇕` — branch has diverged
+
+Markers combine when more than one thing is true.
+
+Examples:
+
+- `?` → you created a file but have not added it
+- `+!` → you have both staged changes and unstaged edits
+- `⇣` → pull before you keep going
+- `?⇡` → local untracked files and your branch is ahead of upstream
+
+If you are **not** inside a Git repo, the branch and status segments simply do not appear.
+
+### Command duration
+
+The command duration segment is intentionally quiet:
+
+- only shows when a command takes **500ms or more**
+- appears on the far right of the first line
+- uses dimmed white text
+
+This is useful for noticing commands that are starting to feel slow without adding noise for every fast command.
+
+Examples:
+
+- `git status` in a large repo
+- a package manager command
+- a slow search
+- a first `nvim` launch while plugins settle
+
+If you do **not** see a duration, that usually means the last command finished quickly.
+
+### Prompt character
+
+The second line is the actual input prompt:
+
+- green `>` after success
+- red `>` after a non-zero exit status
+
+The config also defines a yellow `<` for Starship's vi command mode, but the managed shell setup does **not** enable vi editing by default:
+
+- `zsh` uses `bindkey -e`
+- `bash` does not turn on `set -o vi`
+
+So in the default managed environment, most users will only see the green or red `>`.
+
+## What this prompt intentionally does not show
+
+This config is minimal on purpose. It does **not** try to show every possible language, runtime, or tool segment.
+
+In particular:
+
+- the `package` module is disabled
+- there is no Python/Node/Rust/etc. version segment in the managed config
+- there is no username/hostname block
+
+That keeps the prompt focused on the information you usually need for terminal work in this repo: **where you are, what branch you are on, whether the repo is dirty, and whether the last command was slow or failed**.
+
+## Common workflows
+
+### Moving around the repo
+
+As you `cd` through the repo, the path updates immediately. Because the path is shortened to three components, it stays readable in tmux panes, Ghostty splits, and narrower terminal windows.
+
+Use the prompt for quick orientation, then use `pwd` when you need the full path for copy/paste or scripting.
+
+### Checking whether the repo is clean
+
+Before committing, rebasing, or switching branches, glance at the Git status segment:
+
+- no yellow markers → likely clean
+- `?` → you probably created a file and forgot to add it
+- `!` → you changed tracked files
+- `⇣` → upstream moved; consider pulling or rebasing first
+
+This is often faster than running `git status` every few minutes.
+
+### Noticing slow commands
+
+If the right side shows `1s`, `2s`, or longer, the last command crossed the 500ms threshold. That is a small but useful feedback loop:
+
+- a command that used to be instant is slowing down
+- a search is broader than expected
+- a Git operation is touching more files than you thought
+
+### Spotting failures quickly
+
+A red `>` means the previous command failed. That is especially helpful when:
+
+- a command produced a lot of output and you want a quick success/failure check
+- you ran a chain of commands
+- you are in tmux and your attention is split across panes
+
+If you need the exact exit code, run `echo $?` right away.
+
+### Using different terminals
+
+Starship is shell-driven here, not terminal-driven. So the prompt should behave the same whether you open:
+
+- Ghostty on macOS or Ubuntu
+- Terminal/iTerm on macOS
+- Windows Terminal into WSL
+- a tmux pane inside any of the above
+
+The terminal affects font rendering and window behavior, but not the actual prompt layout.
+
+## Simple customization guidance
+
+Treat this prompt as **repo-managed config**.
+
+### For permanent changes
+
+Do **not** edit `~/.config/starship.toml` directly. In this setup it is a managed symlink.
+
+Instead, change the tracked source:
+
+```text
+dotfiles/shared/shell/starship.toml
+```
+
+Then re-run the setup flow or relink as needed so the managed home-directory path still points at the repo version.
+
+### For safe experiments
+
+Use Starship's inspection tools before changing the managed config:
+
+```bash
+starship explain
+starship explain -p "$PWD" -s 1 -d 1200
+```
+
+That is a good way to understand how the current config behaves without editing anything.
+
+### If you want vi-mode prompt behavior
+
+The yellow `<` only matters if your shell is actually in vi command mode. Enabling that is a shell-editing decision, not just a prompt tweak. If you choose to switch to vi editing later, the Starship character is already prepared for it.
+
+## Troubleshooting
+
+### I do not see the Starship prompt at all
+
+Check these first:
+
+1. Open a **new interactive shell**
+2. Confirm Starship exists:
+
+   ```bash
+   command -v starship
+   ```
+
+3. Confirm the managed config exists:
+
+   ```bash
+   ls -l ~/.config/starship.toml
+   ```
+
+4. Make sure your shell startup file still contains the Starship init block:
+   - `~/.zshrc` on macOS
+   - `~/.bashrc` on Ubuntu/WSL
+
+If Starship is missing, the shell will fall back instead of erroring.
+
+### The prompt looks old after I changed config
+
+Start a new shell, or reload the current one:
+
+```bash
+exec zsh
+```
+
+or
+
+```bash
+exec bash
+```
+
+Starship reads the config when the shell starts.
+
+### The path feels incomplete
+
+That is expected. This config truncates the path to three components and does not show a truncation marker. Use:
+
+```bash
+pwd
+```
+
+when you need the full path.
+
+### The branch or Git status is missing
+
+That is normal outside a Git worktree. Inside a repo, verify that your current directory is actually within the repository you expect.
+
+### I never see the yellow `<`
+
+Also expected in the default managed setup. The prompt is ready for vi mode, but the shell configs here do not enable vi editing by default.
+
+### Symbols look wrong or spacing feels off
+
+This environment expects JetBrains Mono Nerd Font during setup. Even though this prompt is mostly text-based, it still uses Unicode symbols such as `⇡`, `⇣`, `✘`, and `»`. If those render poorly, check your terminal font first.

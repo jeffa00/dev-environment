@@ -68,3 +68,4 @@ This README is the quick entry point. Deeper setup docs live at:
 - [`docs/setup/setup.md`](docs/setup/setup.md)
 - [`docs/setup/repo-layout.md`](docs/setup/repo-layout.md)
 - [`docs/setup/maintenance.md`](docs/setup/maintenance.md)
+- [`docs/tutorial/index.md`](docs/tutorial/index.md)
