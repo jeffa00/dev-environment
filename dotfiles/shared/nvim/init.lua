@@ -1,6 +1,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+
 local opt = vim.opt
 
 opt.number = true
@@ -12,7 +14,7 @@ opt.undofile = true
 opt.ignorecase = true
 opt.smartcase = true
 opt.updatetime = 250
-opt.timeoutlen = 300
+opt.timeoutlen = 500
 opt.signcolumn = "yes"
 opt.termguicolors = true
 opt.splitright = true

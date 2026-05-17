@@ -282,7 +282,7 @@ start_entries() {
     fi
 
     log "Starting tmux template '$template' as session '$session_name'"
-    XDG_CONFIG_HOME="$TMPDIR_PATH" \
+    TMUXINATOR_CONFIG="$TMUXINATOR_CONFIG_ROOT" \
       DEV_ENV_PROJECT_ROOT="$REPO_ROOT" \
       DEV_ENV_PRIVATE_REPO_ROOT="$PRIVATE_REPO_ROOT" \
       tmuxinator start "$template" -n "$session_name"
