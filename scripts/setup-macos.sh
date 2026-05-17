@@ -41,6 +41,11 @@ if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   run brew install tmuxinator
 fi
 
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ]; then
+  log "Installing optional .NET SDK"
+  install_dotnet_macos
+fi
+
 log "Applying managed config"
 ensure_dir "$HOME/.config"
 link_file "$REPO_ROOT/dotfiles/macos/zsh/.zprofile" "$HOME/.zprofile"
@@ -48,12 +53,28 @@ link_file "$REPO_ROOT/dotfiles/macos/zsh/.zshrc" "$HOME/.zshrc"
 link_file "$REPO_ROOT/dotfiles/shared/shell/starship.toml" "$HOME/.config/starship.toml"
 link_file "$REPO_ROOT/dotfiles/shared/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_dir "$REPO_ROOT/dotfiles/shared/nvim" "$HOME/.config/nvim"
+
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ] || [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ]; then
+  link_dotnet_shell_env
+fi
+
+if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ]; then
+  require_dotnet
+  link_dotnet_nvim_marker
+fi
+
 manage_ghostty_macos
 
 log "Validating installed tools"
 validate_command tmux
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   validate_command tmuxinator
+fi
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ]; then
+  validate_command dotnet
+fi
+if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ] && [ "${INSTALL_DOTNET:-0}" -eq 0 ]; then
+  validate_command dotnet
 fi
 validate_command nvim
 validate_command ghostty

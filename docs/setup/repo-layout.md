@@ -35,6 +35,7 @@ scripts/
 
 Shared content is the default source of truth for tools that should behave the same across platforms:
 
+- `dotfiles/shared/dev-environment/` — optional additive feature files linked under `~/.config/dev-environment/`
 - `dotfiles/shared/shell/starship.toml` — Starship prompt config
 - `dotfiles/shared/tmux/tmux.conf` — tmux config
 - `dotfiles/shared/nvim/` — the full Neovim config directory, including `init.lua` and `lazy-lock.json`
@@ -126,6 +127,7 @@ The setup scripts create symlinks from absolute paths inside this repo into the 
 
 | Repo path | Home path |
 | --- | --- |
+| `dotfiles/shared/dev-environment/` files | `~/.config/dev-environment/` |
 | `dotfiles/shared/shell/starship.toml` | `~/.config/starship.toml` |
 | `dotfiles/shared/tmux/tmux.conf` | `~/.tmux.conf` |
 | `dotfiles/shared/nvim/` | `~/.config/nvim` |

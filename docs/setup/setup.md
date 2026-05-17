@@ -43,6 +43,24 @@ You can combine flags when needed, for example:
 bash scripts/setup.sh --dry-run --apply-windows-terminal
 ```
 
+Optional .NET 10 SDK install:
+
+```bash
+bash scripts/setup.sh --install-dotnet
+```
+
+You can combine it with dry-run too:
+
+```bash
+bash scripts/setup.sh --dry-run --install-dotnet
+```
+
+Optional Neovim .NET layer:
+
+```bash
+bash scripts/setup.sh --enable-dotnet-nvim
+```
+
 ## Optional tmux workspace orchestration
 
 Phase 8 adds an optional tmux workspace layer on top of the base shell/editor setup.
@@ -76,6 +94,47 @@ scripts/tmux-session.sh start dev-environment
 
 Running the wrapper without arguments is also supported, but only when you have configured defaults in a sibling private overlay repo.
 
+## Optional .NET 10 SDK installation
+
+Phase 9 adds an optional .NET SDK layer on top of the base environment.
+
+- The base shell/editor environment still works without it.
+- Install is opt-in.
+- This step installs the SDK only; editor-specific .NET workflow configuration is separate.
+
+Enable it with:
+
+```bash
+bash scripts/setup.sh --install-dotnet
+```
+
+Current install path by platform:
+
+- **macOS:** installs Homebrew `dotnet`
+- **Ubuntu 24.04+ / WSL on Ubuntu 24.04+:** installs `dotnet-sdk-10.0` from `apt`
+- **Ubuntu 22.04 / WSL on Ubuntu 22.04:** adds `ppa:dotnet/backports`, then installs `dotnet-sdk-10.0`
+
+For the opt-in .NET path, Ubuntu versions older than 22.04 are not supported.
+
+### Optional Neovim .NET layer
+
+The editor integration is a second opt-in layer:
+
+```bash
+bash scripts/setup.sh --enable-dotnet-nvim
+```
+
+- This enables the lightweight Neovim .NET path without changing the default editor experience for everyone.
+- It expects `dotnet` to already be available on `PATH`, whether from `--install-dotnet` or an existing install.
+- The setup links opt-in files under `~/.config/dev-environment/` so the base shell and Neovim config stay unchanged when the feature is not enabled.
+
+Common combinations:
+
+```bash
+bash scripts/setup.sh --install-dotnet --enable-dotnet-nvim
+bash scripts/setup.sh --dry-run --install-dotnet --enable-dotnet-nvim
+```
+
 ## What the setup does
 
 At a high level, the bootstrap script:
@@ -93,6 +152,8 @@ At a high level, the bootstrap script:
 6. Backs up existing unmanaged files before replacing them with tracked symlinks.
 7. Validates key tools such as `tmux`, `nvim`, `ghostty` (where applicable), and `starship`.
 8. Optionally installs `tmuxinator` when you pass `--install-tmuxinator`.
+9. Optionally installs the .NET 10 SDK when you pass `--install-dotnet`.
+10. Optionally enables the Neovim .NET layer when you pass `--enable-dotnet-nvim`.
 
 Backups use a timestamped suffix such as `.backup.YYYYMMDD-HHMMSS`.
 

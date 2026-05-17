@@ -19,6 +19,11 @@ if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   run sudo apt-get install -y tmuxinator
 fi
 
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ]; then
+  log "Installing optional .NET SDK"
+  install_dotnet_ubuntu
+fi
+
 install_ghostty_ubuntu
 install_nerd_font_ubuntu
 
@@ -32,6 +37,15 @@ link_file "$REPO_ROOT/dotfiles/shared/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_dir "$REPO_ROOT/dotfiles/shared/nvim" "$HOME/.config/nvim"
 link_file "$REPO_ROOT/dotfiles/linux/ghostty/config.ghostty" "$HOME/.config/ghostty/config.ghostty"
 
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ] || [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ]; then
+  link_dotnet_shell_env
+fi
+
+if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ]; then
+  require_dotnet
+  link_dotnet_nvim_marker
+fi
+
 if [ -e "$HOME/.config/ghostty/config" ] && [ ! -L "$HOME/.config/ghostty/config" ]; then
   backup_path "$HOME/.config/ghostty/config"
 fi
@@ -40,6 +54,12 @@ log "Validating installed tools"
 validate_command tmux
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   validate_command tmuxinator
+fi
+if [ "${INSTALL_DOTNET:-0}" -eq 1 ]; then
+  validate_command dotnet
+fi
+if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ] && [ "${INSTALL_DOTNET:-0}" -eq 0 ]; then
+  validate_command dotnet
 fi
 validate_command nvim
 validate_command ghostty

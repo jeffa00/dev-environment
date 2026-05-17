@@ -12,8 +12,9 @@ This Neovim config is intentionally small and practical:
 - syntax support through treesitter
 - markdown-friendly preview tools through Markview
 - a few opinionated defaults for navigation, clipboard, splits, and indentation
+- an optional .NET layer that can be enabled separately when you want C# support
 
-It is **not** a heavily customized IDE. There is no repo-managed LSP, completion framework, file tree, or large custom command layer. Expect a clean editor with a few well-chosen tools.
+It is **not** a heavily customized IDE. By default there is no repo-managed LSP, completion framework, file tree, or large custom command layer. Expect a clean editor with a few well-chosen tools.
 
 ## Launching Neovim
 
@@ -322,13 +323,69 @@ That gives you a very efficient "edit here, verify there" setup.
 
 To avoid confusion, here is what this managed setup does **not** currently provide:
 
-- no repo-managed language server setup
+- no repo-managed language server setup by default
 - no repo-managed autocompletion framework
 - no repo-managed file tree sidebar
 - no large custom command palette beyond Telescope and which-key
 - no custom cross-over tmux/Neovim navigation plugin
 
 That is intentional. The setup is lightweight and focused on editing, search, markdown work, and terminal-driven workflows.
+
+## Optional .NET mode
+
+Phase 9 adds an opt-in .NET Neovim layer for users who want lightweight C# support without turning the shared config into a general-purpose IDE.
+
+Enable it with:
+
+```bash
+bash scripts/setup.sh --enable-dotnet-nvim
+```
+
+It expects `dotnet` to already be installed, either through:
+
+```bash
+bash scripts/setup.sh --install-dotnet
+```
+
+or through an existing SDK install on the machine.
+
+When enabled, the config adds:
+
+- C# treesitter support
+- Mason configured with the extra registry needed for Roslyn
+- the Roslyn language server wired through Neovim's LSP config
+
+The intent is still lightweight:
+
+- no repo-managed completion framework
+- no heavyweight IDE layer
+- no debugger integration yet in this phase of the config
+
+### First-use flow for Roslyn
+
+After enabling the Neovim .NET layer:
+
+1. start `nvim`
+2. run `:Mason`
+3. install the Roslyn server with:
+
+   ```text
+   :MasonInstall roslyn
+   ```
+
+4. open a `.cs` file from the project you want to work in
+
+### C# keybindings
+
+When the Roslyn LSP is attached in a C# buffer, this layer adds a small set of LSP mappings:
+
+- `gd` — go to definition
+- `gr` — list references
+- `K` — hover
+- `Space r n` (`<leader>rn`) — rename symbol
+- `Space c a` (`<leader>ca`) — code action
+
+These only apply in Roslyn-backed C# buffers; the default non-.NET Neovim experience stays unchanged.
 
 ## Troubleshooting
 

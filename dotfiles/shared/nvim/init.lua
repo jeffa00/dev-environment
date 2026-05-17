@@ -52,6 +52,8 @@ vim.diagnostic.config({
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local uv = vim.uv or vim.loop
+local dev_environment_config_dir = vim.fs.joinpath(vim.fs.dirname(vim.fn.stdpath("config")), "dev-environment")
+local dotnet_nvim_enabled = uv.fs_stat(vim.fs.joinpath(dev_environment_config_dir, "enable-dotnet-nvim")) ~= nil
 
 if not uv.fs_stat(lazypath) then
   local out = vim.fn.system({
@@ -70,7 +72,7 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
+local plugins = {
   {
     "catppuccin/nvim",
     name = "catppuccin",
@@ -131,6 +133,10 @@ require("lazy").setup({
         "yaml",
       }
 
+      if dotnet_nvim_enabled then
+        table.insert(languages, 2, "c_sharp")
+      end
+
       local treesitter = require("nvim-treesitter")
 
       treesitter.setup({
@@ -167,7 +173,18 @@ require("lazy").setup({
       { "<leader>ms", "<cmd>Markview splitToggle<CR>", desc = "Toggle markdown split" },
     },
   },
-}, {
+}
+
+if dotnet_nvim_enabled then
+  local ok, dotnet_plugins = pcall(require, "dev_environment.dotnet")
+  if not ok then
+    error("Failed to load optional .NET Neovim config:\n" .. dotnet_plugins)
+  end
+
+  vim.list_extend(plugins, dotnet_plugins)
+end
+
+require("lazy").setup(plugins, {
   install = {
     colorscheme = { "catppuccin", "habamax" },
   },

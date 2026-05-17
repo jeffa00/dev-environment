@@ -6,6 +6,8 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DRY_RUN=0
 APPLY_WINDOWS_TERMINAL=0
 INSTALL_TMUXINATOR=0
+INSTALL_DOTNET=0
+ENABLE_DOTNET_NVIM=0
 
 source "$SCRIPT_DIR/lib/common.sh"
 
@@ -20,6 +22,12 @@ while [ $# -gt 0 ]; do
     --install-tmuxinator)
       INSTALL_TMUXINATOR=1
       ;;
+    --install-dotnet)
+      INSTALL_DOTNET=1
+      ;;
+    --enable-dotnet-nvim)
+      ENABLE_DOTNET_NVIM=1
+      ;;
     *)
       die "Unknown argument: $1"
       ;;
@@ -30,6 +38,8 @@ done
 export DRY_RUN
 export APPLY_WINDOWS_TERMINAL
 export INSTALL_TMUXINATOR
+export INSTALL_DOTNET
+export ENABLE_DOTNET_NVIM
 export REPO_ROOT
 
 case "$(detect_platform)" in

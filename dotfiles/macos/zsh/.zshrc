@@ -21,7 +21,10 @@ alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -lah'
 
+if [ -f "$HOME/.config/dev-environment/dotnet.sh" ]; then
+  . "$HOME/.config/dev-environment/dotnet.sh"
+fi
+
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
-

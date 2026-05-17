@@ -24,6 +24,10 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   alias fd='fdfind'
 fi
 
+if [ -f "$HOME/.config/dev-environment/dotnet.sh" ]; then
+  . "$HOME/.config/dev-environment/dotnet.sh"
+fi
+
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init bash)"
 fi

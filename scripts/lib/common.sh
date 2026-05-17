@@ -63,6 +63,13 @@ require_ubuntu() {
   [ "${ID:-}" = "ubuntu" ] || die "This setup currently supports Ubuntu for Linux/WSL."
 }
 
+ubuntu_version() {
+  [ -f /etc/os-release ] || die "Cannot determine Ubuntu version."
+  . /etc/os-release
+  [ -n "${VERSION_ID:-}" ] || die "Cannot determine Ubuntu version."
+  printf '%s\n' "$VERSION_ID"
+}
+
 repo_root_from_script_dir() {
   local script_dir
   script_dir="$1"
@@ -107,6 +114,56 @@ install_ghostty_ubuntu() {
   run sudo add-apt-repository -y ppa:mkasberg/ghostty-ubuntu
   run sudo apt-get update
   run sudo apt-get install -y ghostty
+}
+
+install_dotnet_macos() {
+  if brew list --formula dotnet >/dev/null 2>&1; then
+    log ".NET SDK already installed through Homebrew"
+    return
+  fi
+
+  run brew install dotnet
+}
+
+install_dotnet_ubuntu() {
+  local version_id
+  local version_major
+
+  version_id="$(ubuntu_version)"
+  version_major="${version_id%%.*}"
+
+  if dpkg -s dotnet-sdk-10.0 >/dev/null 2>&1; then
+    log ".NET 10 SDK already installed"
+    return
+  fi
+
+  case "$version_id" in
+    22.04)
+      run sudo add-apt-repository -y ppa:dotnet/backports
+      run sudo apt-get update
+      ;;
+    *)
+      if [ "$version_major" -lt 24 ]; then
+        die "The opt-in .NET install path currently supports Ubuntu 22.04 and Ubuntu 24.04 or newer."
+      fi
+      ;;
+  esac
+
+  run sudo apt-get install -y dotnet-sdk-10.0
+}
+
+require_dotnet() {
+  command_exists dotnet || die ".NET SDK is required. Run 'bash scripts/setup.sh --install-dotnet' first, or install dotnet before enabling the Neovim .NET layer."
+}
+
+link_dotnet_shell_env() {
+  ensure_dir "$HOME/.config/dev-environment"
+  link_file "$REPO_ROOT/dotfiles/shared/dev-environment/dotnet.sh" "$HOME/.config/dev-environment/dotnet.sh"
+}
+
+link_dotnet_nvim_marker() {
+  ensure_dir "$HOME/.config/dev-environment"
+  link_file "$REPO_ROOT/dotfiles/shared/dev-environment/enable-dotnet-nvim" "$HOME/.config/dev-environment/enable-dotnet-nvim"
 }
 
 validate_command() {
