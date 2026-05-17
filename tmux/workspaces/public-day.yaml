@@ -1,0 +1,6 @@
+templates:
+  - template: dev-environment
+    name: env
+  - template: docs
+    name: docs
+attach: env

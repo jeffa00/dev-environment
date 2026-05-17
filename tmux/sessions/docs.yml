@@ -1,0 +1,13 @@
+name: docs
+root: <%= ENV.fetch("DEV_ENV_PROJECT_ROOT") %>
+attach: false
+
+windows:
+  - writing:
+      layout: main-vertical
+      panes:
+        - nvim docs
+        - rg "TODO|Phase" docs
+  - reference:
+      panes:
+        - git status --short

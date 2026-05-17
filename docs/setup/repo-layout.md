@@ -3,6 +3,7 @@
 This repository is split into **managed content** and **orchestration**:
 
 - `dotfiles/` owns the tracked config that should exist on a machine.
+- `tmux/` owns repo-managed workspace/session templates for optional tmux orchestration.
 - `scripts/` owns platform detection, package installation, backups, and symlink creation.
 - `Brewfile` and `packages/apt.txt` own package inventories for supported platforms.
 
@@ -14,8 +15,12 @@ dotfiles/
   macos/    # macOS-only overlays
   linux/    # native Ubuntu/Linux overlays
   wsl/      # WSL-only overlays
+tmux/
+  sessions/   # public tmux session templates
+  workspaces/ # public multi-session workspace definitions
 scripts/
   setup.sh
+  tmux-session.sh
   setup-macos.sh
   setup-linux.sh
   setup-wsl.sh
@@ -77,6 +82,41 @@ Package manifests are intentionally separate from dotfiles:
 
 - `Brewfile` defines the macOS package set.
 - `packages/apt.txt` defines the Ubuntu/WSL package set.
+
+## tmux orchestration layout
+
+The optional tmux workspace layer lives outside `dotfiles/` on purpose.
+
+- `dotfiles/shared/tmux/tmux.conf` is still the linked home-directory tmux config.
+- `tmux/sessions/` contains public, generic session templates.
+- `tmux/workspaces/` contains public workspace definitions that can start one or more sessions together.
+- `scripts/tmux-session.sh` is the stable user-facing wrapper.
+
+This split keeps linked home config separate from launch metadata.
+
+### Public repo vs sibling private overlay
+
+The public repo should only ship generic, shareable templates.
+
+A sibling private overlay repo can hold personal defaults and private workspace details, for example:
+
+```text
+../dev-environment-private/
+  tmux/
+    defaults.yaml
+    sessions/
+    workspaces/
+```
+
+That private overlay is where personal project names, local defaults, and private paths should live.
+
+Wrapper discovery is expected to work like this:
+
+1. public templates from `dev-environment/tmux/`
+2. sibling private overlay repo templates if the overlay exists
+3. private definitions can extend or override public ones by name
+
+The wrapper should remain useful even when the sibling overlay repo does not exist.
 
 ## Managed path mapping
 

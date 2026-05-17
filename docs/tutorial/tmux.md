@@ -68,6 +68,39 @@ Or in one command:
 tmux new -s my-project -c ~/src/my-project
 ```
 
+## Starting repo-managed sessions and workspaces
+
+This repo also supports an optional wrapper for repeatable tmux startup:
+
+```bash
+scripts/tmux-session.sh list
+scripts/tmux-session.sh start dev-environment
+scripts/tmux-session.sh start public-day
+```
+
+Use the wrapper when you want a predefined layout. Use plain `tmux new ...` when you want an ad hoc session.
+
+### What the wrapper does
+
+- starts generic public templates from this repo
+- can start a public workspace that launches more than one session definition
+- uses attach-or-create behavior for named sessions
+- can read personal defaults and private templates from a sibling private overlay repo when one exists
+
+The wrapper is meant to be a convenience layer on top of tmux, not a replacement for tmux basics.
+
+### Public templates vs private defaults
+
+The public repo should only contain generic session/workspace definitions.
+
+If you want a morning startup list such as "open my usual projects", keep that in a sibling private overlay repo rather than in the public repo. Running:
+
+```bash
+scripts/tmux-session.sh
+```
+
+should only rely on that private defaults file when it exists. Nothing in this setup auto-starts tmux workspaces on login or shell launch.
+
 ## Detaching and attaching
 
 Detach from the current session without stopping anything:
@@ -407,3 +440,11 @@ Then:
 6. later, return with `tmux attach -t dev-env`
 
 That is the main benefit of tmux in this environment: your project layout survives terminal closes, network hiccups, and context switches.
+
+With repo-managed workspaces enabled, another good pattern is:
+
+```bash
+scripts/tmux-session.sh start public-day
+```
+
+to spin up a known layout quickly, then keep using normal tmux navigation once you are inside it.

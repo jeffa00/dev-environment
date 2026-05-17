@@ -30,6 +30,14 @@ bash scripts/setup.sh
 bash scripts/setup.sh --dry-run
 ```
 
+Optional tmux workspace orchestration:
+
+```bash
+bash scripts/setup.sh --install-tmuxinator
+scripts/tmux-session.sh list
+scripts/tmux-session.sh start public-day
+```
+
 WSL can also link the tracked Windows Terminal settings template:
 
 ```bash
@@ -59,6 +67,7 @@ Re-running `scripts/setup.sh` is expected.
 - Ghostty is part of the managed setup on macOS and standalone Ubuntu, not WSL
 - the first Neovim launch may finish plugin or treesitter bootstrap work
 - Oh My Zsh removal is intentionally out of scope; only clean it up after the managed shell setup is working
+- tmux workspace orchestration is optional and uses generic public templates plus an optional sibling private overlay repo for personal defaults and private workspaces
 
 ## Documentation
 
@@ -68,4 +77,5 @@ This README is the quick entry point. Deeper setup docs live at:
 - [`docs/setup/setup.md`](docs/setup/setup.md)
 - [`docs/setup/repo-layout.md`](docs/setup/repo-layout.md)
 - [`docs/setup/maintenance.md`](docs/setup/maintenance.md)
+- [`docs/setup/tmux-workspaces.md`](docs/setup/tmux-workspaces.md)
 - [`docs/tutorial/index.md`](docs/tutorial/index.md)

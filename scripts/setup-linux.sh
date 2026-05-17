@@ -13,6 +13,12 @@ require_ubuntu
 log "Installing Ubuntu packages"
 run sudo apt-get update
 run xargs -a "$REPO_ROOT/packages/apt.txt" sudo apt-get install -y
+
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  log "Installing optional tmux workspace backend"
+  run sudo apt-get install -y tmuxinator
+fi
+
 install_ghostty_ubuntu
 install_nerd_font_ubuntu
 
@@ -32,7 +38,9 @@ fi
 
 log "Validating installed tools"
 validate_command tmux
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  validate_command tmuxinator
+fi
 validate_command nvim
 validate_command ghostty
 validate_command starship
-

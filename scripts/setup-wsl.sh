@@ -28,6 +28,12 @@ apply_windows_terminal_template() {
 log "Installing Ubuntu packages for WSL"
 run sudo apt-get update
 run xargs -a "$REPO_ROOT/packages/apt.txt" sudo apt-get install -y
+
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  log "Installing optional tmux workspace backend"
+  run sudo apt-get install -y tmuxinator
+fi
+
 install_nerd_font_ubuntu
 
 log "Applying managed config"
@@ -47,6 +53,8 @@ fi
 
 log "Validating installed tools"
 validate_command tmux
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  validate_command tmuxinator
+fi
 validate_command nvim
 validate_command starship
-

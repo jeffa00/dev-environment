@@ -11,6 +11,7 @@ The tutorial docs are for **using** the installed tools day to day after setup i
 - [Setup guide](./setup/setup.md) — how to run the environment bootstrap and what to expect
 - [Repo layout](./setup/repo-layout.md) — where managed files live and how the repo is organized
 - [Maintenance](./setup/maintenance.md) — how to re-run, update, and maintain the managed environment safely
+- [tmux workspaces](./setup/tmux-workspaces.md) — optional tmux session orchestration, public templates, and private overlay guidance
 
 ## Tutorial docs
 

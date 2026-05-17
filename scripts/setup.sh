@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DRY_RUN=0
 APPLY_WINDOWS_TERMINAL=0
+INSTALL_TMUXINATOR=0
 
 source "$SCRIPT_DIR/lib/common.sh"
 
@@ -16,6 +17,9 @@ while [ $# -gt 0 ]; do
     --apply-windows-terminal)
       APPLY_WINDOWS_TERMINAL=1
       ;;
+    --install-tmuxinator)
+      INSTALL_TMUXINATOR=1
+      ;;
     *)
       die "Unknown argument: $1"
       ;;
@@ -25,6 +29,7 @@ done
 
 export DRY_RUN
 export APPLY_WINDOWS_TERMINAL
+export INSTALL_TMUXINATOR
 export REPO_ROOT
 
 case "$(detect_platform)" in
@@ -41,4 +46,3 @@ case "$(detect_platform)" in
     die "Unsupported platform"
     ;;
 esac
-

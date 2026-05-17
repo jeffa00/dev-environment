@@ -33,6 +33,14 @@ else
   run brew bundle install --file "$REPO_ROOT/Brewfile"
 fi
 
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  if command_exists rbenv || command_exists rvm; then
+    warn "tmuxinator via Homebrew can interfere with rbenv/rvm GEM_HOME. Consider a gem-based install if you manage Ruby versions locally."
+  fi
+  log "Installing optional tmux workspace backend"
+  run brew install tmuxinator
+fi
+
 log "Applying managed config"
 ensure_dir "$HOME/.config"
 link_file "$REPO_ROOT/dotfiles/macos/zsh/.zprofile" "$HOME/.zprofile"
@@ -44,6 +52,9 @@ manage_ghostty_macos
 
 log "Validating installed tools"
 validate_command tmux
+if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
+  validate_command tmuxinator
+fi
 validate_command nvim
 validate_command ghostty
 validate_command starship

@@ -43,6 +43,39 @@ You can combine flags when needed, for example:
 bash scripts/setup.sh --dry-run --apply-windows-terminal
 ```
 
+## Optional tmux workspace orchestration
+
+Phase 8 adds an optional tmux workspace layer on top of the base shell/editor setup.
+
+- The base environment still works without it.
+- The public interface is `scripts/tmux-session.sh`, not raw backend commands.
+- Install is opt-in.
+- Startup is opt-in.
+- Nothing auto-launches from shell startup files.
+
+Install the optional backend:
+
+```bash
+bash scripts/setup.sh --install-tmuxinator
+```
+
+The current backend target is tmuxinator:
+
+- macOS: installed through Homebrew
+- Ubuntu and WSL: installed through `apt`
+
+On macOS, if you actively manage Ruby with `rbenv` or `rvm`, review the tmux workspace docs before using the Homebrew path.
+
+Once installed:
+
+```bash
+scripts/tmux-session.sh list
+scripts/tmux-session.sh start public-day
+scripts/tmux-session.sh start dev-environment
+```
+
+Running the wrapper without arguments is also supported, but only when you have configured defaults in a sibling private overlay repo.
+
 ## What the setup does
 
 At a high level, the bootstrap script:
@@ -59,6 +92,7 @@ At a high level, the bootstrap script:
 5. Symlinks the managed config files for the shell, Starship, tmux, and Neovim.
 6. Backs up existing unmanaged files before replacing them with tracked symlinks.
 7. Validates key tools such as `tmux`, `nvim`, `ghostty` (where applicable), and `starship`.
+8. Optionally installs `tmuxinator` when you pass `--install-tmuxinator`.
 
 Backups use a timestamped suffix such as `.backup.YYYYMMDD-HHMMSS`.
 
@@ -112,6 +146,7 @@ Expect to do a few manual checks after the bootstrap completes:
 4. **Review any backup files** if the script moved aside existing local config.
 5. **On WSL, restart Windows Terminal** after linking the template so the new settings are loaded.
 6. **Handle optional cleanup yourself** if needed. For example, removing Oh My Zsh is intentionally not part of this setup flow.
+7. **If you enabled tmux workspaces, review the public templates and configure your sibling private overlay repo** before relying on wrapper defaults.
 
 ## Expected result
 
