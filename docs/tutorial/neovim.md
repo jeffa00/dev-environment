@@ -335,6 +335,8 @@ That is intentional. The setup is lightweight and focused on editing, search, ma
 
 Phase 9 adds an opt-in .NET Neovim layer for users who want lightweight C# support without turning the shared config into a general-purpose IDE.
 
+For the end-to-end .NET workflow in this repo, including CLI usage and debugging flow, see [`.NET in this environment`](./dotnet.md).
+
 Enable it with:
 
 ```bash
@@ -361,31 +363,12 @@ The intent is still lightweight:
 - no repo-managed completion framework
 - no heavyweight IDE layer
 
-### First-use flow for Roslyn
-
-After enabling the Neovim .NET layer:
-
-1. start `nvim`
-2. run `:Mason`
-3. install the Roslyn server with:
-
-   ```text
-   :MasonInstall roslyn
-   ```
-
-4. open a `.cs` file from the project you want to work in
-
-### First-use flow for debugging
-
-The debugger path in this config uses `netcoredbg`.
-
-Install it through Mason:
+Install the Neovim-side tools through Mason:
 
 ```text
+:MasonInstall roslyn
 :MasonInstall netcoredbg
 ```
-
-After that, open a C# project and use the debug mappings below.
 
 ### C# keybindings
 

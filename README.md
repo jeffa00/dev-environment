@@ -93,3 +93,4 @@ This README is the quick entry point. Deeper setup docs live at:
 - [`docs/setup/maintenance.md`](docs/setup/maintenance.md)
 - [`docs/setup/tmux-workspaces.md`](docs/setup/tmux-workspaces.md)
 - [`docs/tutorial/index.md`](docs/tutorial/index.md)
+- [`docs/tutorial/dotnet.md`](docs/tutorial/dotnet.md)

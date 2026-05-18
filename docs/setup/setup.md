@@ -135,6 +135,8 @@ bash scripts/setup.sh --install-dotnet --enable-dotnet-nvim
 bash scripts/setup.sh --dry-run --install-dotnet --enable-dotnet-nvim
 ```
 
+For the day-to-day .NET workflow after setup, see [`.NET in this environment`](../tutorial/dotnet.md).
+
 ## What the setup does
 
 At a high level, the bootstrap script:

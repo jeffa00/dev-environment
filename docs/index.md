@@ -16,6 +16,7 @@ The tutorial docs are for **using** the installed tools day to day after setup i
 ## Tutorial docs
 
 - [Tutorial index](./tutorial/index.md) — the entry point for day-to-day tool guides
+- [.NET](./tutorial/dotnet.md) — opt-in SDK setup recap, C# workflow, and Neovim debugging
 - [tmux](./tutorial/tmux.md) — sessions, windows, panes, copy mode, and terminal workflows
 - [Neovim](./tutorial/neovim.md) — everyday editing, search, markdown flow, and tmux interaction
 - [Starship](./tutorial/starship.md) — how to read and work with the managed shell prompt
