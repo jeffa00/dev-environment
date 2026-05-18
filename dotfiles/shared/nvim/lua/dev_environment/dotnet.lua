@@ -1,5 +1,35 @@
 local group = vim.api.nvim_create_augroup("dev-environment-dotnet", { clear = true })
 
+vim.api.nvim_create_autocmd("FileType", {
+  group = group,
+  pattern = "cs",
+  callback = function(args)
+    local opts = { buffer = args.buf }
+
+    vim.keymap.set("n", "<leader>dc", function()
+      require("dap").continue()
+    end, vim.tbl_extend("force", opts, { desc = "Debug continue" }))
+    vim.keymap.set("n", "<leader>db", function()
+      require("dap").toggle_breakpoint()
+    end, vim.tbl_extend("force", opts, { desc = "Debug breakpoint" }))
+    vim.keymap.set("n", "<leader>di", function()
+      require("dap").step_into()
+    end, vim.tbl_extend("force", opts, { desc = "Debug step into" }))
+    vim.keymap.set("n", "<leader>do", function()
+      require("dap").step_over()
+    end, vim.tbl_extend("force", opts, { desc = "Debug step over" }))
+    vim.keymap.set("n", "<leader>dO", function()
+      require("dap").step_out()
+    end, vim.tbl_extend("force", opts, { desc = "Debug step out" }))
+    vim.keymap.set("n", "<leader>dr", function()
+      require("dap").repl.open()
+    end, vim.tbl_extend("force", opts, { desc = "Debug REPL" }))
+    vim.keymap.set("n", "<leader>dq", function()
+      require("dap").terminate()
+    end, vim.tbl_extend("force", opts, { desc = "Debug terminate" }))
+  end,
+})
+
 vim.api.nvim_create_autocmd("LspAttach", {
   group = group,
   callback = function(args)
@@ -72,6 +102,47 @@ return {
       })
 
       vim.lsp.enable("roslyn_ls")
+    end,
+  },
+  {
+    "mfussenegger/nvim-dap",
+    ft = "cs",
+    config = function()
+      local dap = require("dap")
+
+      if vim.fn.executable("netcoredbg") ~= 1 then
+        vim.schedule(function()
+          vim.notify("netcoredbg is not installed yet. Run :MasonInstall netcoredbg before starting a .NET debug session.", vim.log.levels.WARN)
+        end)
+        return
+      end
+
+      dap.adapters.netcoredbg = {
+        type = "executable",
+        command = vim.fn.exepath("netcoredbg"),
+        args = { "--interpreter=vscode" },
+        options = {
+          detached = false,
+        },
+      }
+
+      dap.configurations.cs = {
+        {
+          type = "netcoredbg",
+          name = "Launch .NET DLL",
+          request = "launch",
+          cwd = "${workspaceFolder}",
+          program = function()
+            return vim.fn.input("Path to DLL: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+          end,
+        },
+        {
+          type = "netcoredbg",
+          name = "Attach to process",
+          request = "attach",
+          processId = require("dap.utils").pick_process,
+        },
+      }
     end,
   },
 }

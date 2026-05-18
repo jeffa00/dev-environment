@@ -354,12 +354,12 @@ When enabled, the config adds:
 - C# treesitter support
 - Mason configured with the extra registry needed for Roslyn
 - the Roslyn language server wired through Neovim's LSP config
+- `nvim-dap` wired to `netcoredbg` for lightweight .NET debugging
 
 The intent is still lightweight:
 
 - no repo-managed completion framework
 - no heavyweight IDE layer
-- no debugger integration yet in this phase of the config
 
 ### First-use flow for Roslyn
 
@@ -375,6 +375,18 @@ After enabling the Neovim .NET layer:
 
 4. open a `.cs` file from the project you want to work in
 
+### First-use flow for debugging
+
+The debugger path in this config uses `netcoredbg`.
+
+Install it through Mason:
+
+```text
+:MasonInstall netcoredbg
+```
+
+After that, open a C# project and use the debug mappings below.
+
 ### C# keybindings
 
 When the Roslyn LSP is attached in a C# buffer, this layer adds a small set of LSP mappings:
@@ -386,6 +398,31 @@ When the Roslyn LSP is attached in a C# buffer, this layer adds a small set of L
 - `Space c a` (`<leader>ca`) — code action
 
 These only apply in Roslyn-backed C# buffers; the default non-.NET Neovim experience stays unchanged.
+
+### Debug keybindings
+
+In C# buffers with the optional .NET layer enabled:
+
+- `Space d c` (`<leader>dc`) — start or continue debugging
+- `Space d b` (`<leader>db`) — toggle breakpoint
+- `Space d i` (`<leader>di`) — step into
+- `Space d o` (`<leader>do`) — step over
+- `Space d O` (`<leader>dO`) — step out
+- `Space d r` (`<leader>dr`) — open the DAP REPL
+- `Space d q` (`<leader>dq`) — terminate the debug session
+
+### Debug flow
+
+The default launch configuration prompts for the compiled `.dll` path.
+
+A practical workflow is:
+
+1. build the project first, for example with `dotnet build`
+2. press `Space d c`
+3. enter the path to the built `.dll`
+4. use the breakpoint and stepping mappings while the session is running
+
+There is also an **Attach to process** configuration for attaching to an already-running .NET process.
 
 ## Troubleshooting
 
