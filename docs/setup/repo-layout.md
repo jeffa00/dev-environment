@@ -99,7 +99,7 @@ This split keeps linked home config separate from launch metadata.
 
 The public repo should only ship generic, shareable templates.
 
-A sibling private overlay repo can hold personal defaults and private workspace details, for example:
+A sibling private overlay repo can hold personal defaults, private workspace details, and optional base-config overrides, for example:
 
 ```text
 ../dev-environment-private/
@@ -107,9 +107,27 @@ A sibling private overlay repo can hold personal defaults and private workspace 
     defaults.yaml
     sessions/
     workspaces/
+  dotfiles/
+    shared/
+      tmux/
+        tmux.conf
+      shell/
+        starship.toml
+    macos/
+      zsh/
+        .zprofile
+        .zshrc
+      ghostty/
+        config.ghostty
+    linux/
+      bash/
+        .profile
+        .bashrc
+      ghostty/
+        config.ghostty
 ```
 
-That private overlay is where personal project names, local defaults, and private paths should live.
+That private overlay is where personal project names, local defaults, private paths, and user-specific shell/prompt/terminal overrides should live.
 
 Wrapper discovery is expected to work like this:
 
@@ -128,7 +146,7 @@ The setup scripts create symlinks from absolute paths inside this repo into the 
 | Repo path | Home path |
 | --- | --- |
 | `dotfiles/shared/dev-environment/` files | `~/.config/dev-environment/` |
-| `dotfiles/shared/shell/starship.toml` | `~/.config/starship.toml` |
+| generated Starship config from public baseline plus optional private override | `~/.config/starship.toml` |
 | `dotfiles/shared/tmux/tmux.conf` | `~/.tmux.conf` |
 | `dotfiles/shared/nvim/` | `~/.config/nvim` |
 
@@ -138,7 +156,7 @@ The setup scripts create symlinks from absolute paths inside this repo into the 
 | --- | --- |
 | `dotfiles/macos/zsh/.zprofile` | `~/.zprofile` |
 | `dotfiles/macos/zsh/.zshrc` | `~/.zshrc` |
-| `dotfiles/macos/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` |
+| generated Ghostty config from public baseline plus optional private override | `~/.config/ghostty/config.ghostty` |
 
 `setup-macos.sh` also backs up legacy Ghostty config locations under `~/Library/Application Support/com.mitchellh.ghostty/` and `~/.config/ghostty/config` so the repo-managed path becomes the single owned target.
 
@@ -148,7 +166,7 @@ The setup scripts create symlinks from absolute paths inside this repo into the 
 | --- | --- |
 | `dotfiles/linux/bash/.profile` | `~/.profile` |
 | `dotfiles/linux/bash/.bashrc` | `~/.bashrc` |
-| `dotfiles/linux/ghostty/config.ghostty` | `~/.config/ghostty/config.ghostty` |
+| generated Ghostty config from public baseline plus optional private override | `~/.config/ghostty/config.ghostty` |
 
 ### WSL mappings
 

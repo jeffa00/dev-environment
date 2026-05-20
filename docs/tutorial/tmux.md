@@ -2,6 +2,8 @@
 
 This environment uses the shared tmux config at `dotfiles/shared/tmux/tmux.conf`, linked to `~/.tmux.conf` by the setup script.
 
+If a private sibling repo contains `dotfiles/shared/tmux/tmux.conf`, the shared tmux config loads that private fragment after the public baseline.
+
 This guide focuses on **how to use tmux day to day in this setup**.
 
 ## What is configured here

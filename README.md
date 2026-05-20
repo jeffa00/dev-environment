@@ -12,7 +12,7 @@ This repo manages the terminal/editor layer only. It does **not** try to do full
 
 ## What it manages
 
-The setup links tracked config into standard home-directory locations such as shell startup files, `~/.tmux.conf`, `~/.config/nvim`, `~/.config/starship.toml`, Ghostty config, and, on WSL with opt-in, Windows Terminal `settings.json`.
+The setup links managed config into standard home-directory locations such as shell startup files, `~/.tmux.conf`, `~/.config/nvim`, `~/.config/starship.toml`, Ghostty config, and, on WSL with opt-in, Windows Terminal `settings.json`.
 
 - package install via `Brewfile` on macOS
 - package install via `packages/apt.txt` on Ubuntu and WSL
@@ -82,6 +82,7 @@ Re-running `scripts/setup.sh` is expected.
 - the first Neovim launch may finish plugin or treesitter bootstrap work
 - Oh My Zsh removal is intentionally out of scope; only clean it up after the managed shell setup is working
 - tmux workspace orchestration is optional and uses generic public templates plus an optional sibling private overlay repo for personal defaults and private workspaces
+- base config overrides can also live in the sibling private repo; edit the private file and re-run `bash scripts/setup.sh` to apply it
 
 ## Documentation
 

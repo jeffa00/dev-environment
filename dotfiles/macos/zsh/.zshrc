@@ -25,6 +25,10 @@ if [ -f "$HOME/.config/dev-environment/dotnet.sh" ]; then
   . "$HOME/.config/dev-environment/dotnet.sh"
 fi
 
+if [ -f "$HOME/.config/dev-environment/private/dotfiles/macos/zsh/.zshrc" ]; then
+  . "$HOME/.config/dev-environment/private/dotfiles/macos/zsh/.zshrc"
+fi
+
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi

@@ -46,7 +46,7 @@ bash scripts/setup.sh
 
 If you are on WSL and manage Windows Terminal from this repo, re-run with `--apply-windows-terminal`.
 
-Because the home paths are symlinks into this repo, many changes take effect as soon as the repo files change. Re-running is still the right step after updates because it refreshes packages, restores any missing links, and applies optional targets again.
+Because the home paths are symlinks into this repo, many changes take effect as soon as the repo files change. Re-running is still the right step after updates because it refreshes packages, restores any missing links, regenerates composed config files, and applies optional targets again.
 
 ## If destination files already exist
 

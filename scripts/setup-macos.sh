@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "$SCRIPT_DIR/lib/common.sh"
 source "$SCRIPT_DIR/lib/linking.sh"
+source "$SCRIPT_DIR/lib/private-overrides.sh"
 
 [ "$(detect_platform)" = "macos" ] || die "setup-macos.sh must be run on macOS"
 
@@ -12,10 +13,10 @@ manage_ghostty_macos() {
   local managed_source
   local legacy_path
 
-  managed_source="$REPO_ROOT/dotfiles/macos/ghostty/config.ghostty"
+  managed_source="$1"
 
   ensure_dir "$HOME/.config/ghostty"
-  link_file "$managed_source" "$HOME/.config/ghostty/config.ghostty"
+  link_generated_file "$managed_source" "$HOME/.config/ghostty/config.ghostty"
 
   while IFS= read -r legacy_path; do
     if [ "$legacy_path" != "$HOME/.config/ghostty/config.ghostty" ] && { [ -e "$legacy_path" ] || [ -L "$legacy_path" ]; }; then
@@ -48,9 +49,22 @@ fi
 
 log "Applying managed config"
 ensure_dir "$HOME/.config"
+sync_optional_private_link \
+  "dotfiles/shared/tmux/tmux.conf" \
+  "$(managed_private_override_path "dotfiles/shared/tmux/tmux.conf")"
+sync_optional_private_link \
+  "dotfiles/macos/zsh/.zprofile" \
+  "$(managed_private_override_path "dotfiles/macos/zsh/.zprofile")"
+sync_optional_private_link \
+  "dotfiles/macos/zsh/.zshrc" \
+  "$(managed_private_override_path "dotfiles/macos/zsh/.zshrc")"
+STARSHIP_CONFIG_PATH="$(generated_config_path "starship.toml")"
+GHOSTTY_CONFIG_PATH="$(generated_config_path "ghostty-macos.config.ghostty")"
+generate_starship_config
+generate_ghostty_config "macos"
 link_file "$REPO_ROOT/dotfiles/macos/zsh/.zprofile" "$HOME/.zprofile"
 link_file "$REPO_ROOT/dotfiles/macos/zsh/.zshrc" "$HOME/.zshrc"
-link_file "$REPO_ROOT/dotfiles/shared/shell/starship.toml" "$HOME/.config/starship.toml"
+link_generated_file "$STARSHIP_CONFIG_PATH" "$HOME/.config/starship.toml"
 link_file "$REPO_ROOT/dotfiles/shared/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_dir "$REPO_ROOT/dotfiles/shared/nvim" "$HOME/.config/nvim"
 
@@ -63,7 +77,7 @@ if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ]; then
   link_dotnet_nvim_marker
 fi
 
-manage_ghostty_macos
+manage_ghostty_macos "$GHOSTTY_CONFIG_PATH"
 
 log "Validating installed tools"
 validate_command tmux

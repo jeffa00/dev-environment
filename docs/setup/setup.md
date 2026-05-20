@@ -156,6 +156,7 @@ At a high level, the bootstrap script:
 8. Optionally installs `tmuxinator` when you pass `--install-tmuxinator`.
 9. Optionally installs the .NET 10 SDK when you pass `--install-dotnet`.
 10. Optionally enables the Neovim .NET layer when you pass `--enable-dotnet-nvim`.
+11. Applies optional private overrides from a sibling `dev-environment-private` repo when those files exist.
 
 Backups use a timestamped suffix such as `.backup.YYYYMMDD-HHMMSS`.
 
@@ -173,6 +174,52 @@ In dry-run mode, the helper functions log the commands that would run instead of
 Dry-run still performs prerequisite and environment checks, including platform detection, Ubuntu validation on Linux/WSL, and Homebrew availability on macOS. On macOS it also checks whether the `Brewfile` is already satisfied.
 
 Use it as a safety check before the real run, not as a substitute for the actual setup.
+
+## Optional private overrides
+
+The setup can also consume an optional sibling private repo for user-specific overrides.
+
+Default location:
+
+```text
+../dev-environment-private/
+```
+
+You can override that path with `DEV_ENV_PRIVATE_REPO=/path/to/dev-environment-private`.
+
+Supported private override paths:
+
+```text
+tmux/
+  defaults.yaml
+  sessions/
+  workspaces/
+dotfiles/
+  shared/
+    tmux/tmux.conf
+    shell/starship.toml
+  macos/
+    zsh/.zprofile
+    zsh/.zshrc
+    ghostty/config.ghostty
+  linux/
+    bash/.profile
+    bash/.bashrc
+    ghostty/config.ghostty
+```
+
+Workflow:
+
+1. Edit the file in `dev-environment-private`.
+2. Re-run `bash scripts/setup.sh`.
+3. Open a new shell or reload the tool that uses that config.
+
+Behavior by file type:
+
+- tmux base config: public `~/.tmux.conf` loads the private fragment after the shared baseline
+- shell files: public shell startup files source private fragments near the end
+- Ghostty: setup generates a final config from the public baseline plus appended private overrides
+- Starship: setup generates the final `~/.config/starship.toml`, but because TOML cannot safely merge duplicate keys, a private `starship.toml` acts as a full private replacement for the shared baseline
 
 ## Platform notes
 
@@ -210,6 +257,7 @@ Expect to do a few manual checks after the bootstrap completes:
 5. **On WSL, restart Windows Terminal** after linking the template so the new settings are loaded.
 6. **Handle optional cleanup yourself** if needed. For example, removing Oh My Zsh is intentionally not part of this setup flow.
 7. **If you enabled tmux workspaces, review the public templates and configure your sibling private overlay repo** before relying on wrapper defaults.
+8. **If you use private overrides, re-run setup after editing the private repo** so generated files and managed links stay aligned.
 
 ## Expected result
 

@@ -4,7 +4,7 @@ This repo uses Ghostty as the **outer terminal app** on macOS and native Ubuntu.
 
 ## What this setup manages
 
-The tracked Ghostty config is linked to:
+The final Ghostty config is linked to:
 
 ```text
 ~/.config/ghostty/config.ghostty
@@ -27,6 +27,13 @@ Platform-specific expectations:
 - **macOS:** also enables `display-p3` blending, transparent title bar, and strong background blur
 - **Ubuntu:** keeps the same overall look, but without the macOS-only blur/titlebar/color-space settings
 - **WSL:** Ghostty is **not** part of this managed setup; use the Windows Terminal path instead
+
+If you keep a private sibling repo, setup can append user-specific Ghostty overrides from:
+
+- `dev-environment-private/dotfiles/macos/ghostty/config.ghostty`
+- `dev-environment-private/dotfiles/linux/ghostty/config.ghostty`
+
+After changing a private Ghostty override, re-run `bash scripts/setup.sh` so the generated final config is rebuilt.
 
 ## The recommended mental model
 

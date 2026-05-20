@@ -71,3 +71,35 @@ link_dir() {
   link_path "$1" "$2" "dir"
 }
 
+link_generated_file() {
+  local source_path
+  local destination_path
+  local destination_parent
+  local current_target
+
+  source_path="$1"
+  destination_path="$2"
+
+  if [ "${DRY_RUN:-0}" -eq 0 ] && [ ! -f "$source_path" ]; then
+    die "Expected generated file source: $source_path"
+  fi
+
+  destination_parent="$(dirname "$destination_path")"
+  ensure_dir "$destination_parent"
+
+  if [ -L "$destination_path" ]; then
+    current_target="$(readlink "$destination_path")"
+    if [ "$current_target" = "$source_path" ]; then
+      log "Already linked: $destination_path"
+      return
+    fi
+    backup_path "$destination_path"
+  elif [ -e "$destination_path" ]; then
+    if [ -d "$destination_path" ]; then
+      die "Refusing to replace directory with file link: $destination_path"
+    fi
+    backup_path "$destination_path"
+  fi
+
+  run ln -s "$source_path" "$destination_path"
+}

@@ -6,3 +6,6 @@ elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+if [ -f "$HOME/.config/dev-environment/private/dotfiles/macos/zsh/.zprofile" ]; then
+  . "$HOME/.config/dev-environment/private/dotfiles/macos/zsh/.zprofile"
+fi
