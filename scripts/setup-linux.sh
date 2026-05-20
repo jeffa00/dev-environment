@@ -31,6 +31,7 @@ install_nerd_font_ubuntu
 log "Applying managed config"
 ensure_dir "$HOME/.config"
 ensure_dir "$HOME/.config/ghostty"
+ensure_dir "$HOME/.local/bin"
 scaffold_private_overrides_for_platform "linux"
 sync_optional_private_link \
   "dotfiles/shared/tmux/tmux.conf" \
@@ -47,6 +48,7 @@ generate_starship_config
 generate_ghostty_config "linux"
 link_file "$REPO_ROOT/dotfiles/linux/bash/.profile" "$HOME/.profile"
 link_file "$REPO_ROOT/dotfiles/linux/bash/.bashrc" "$HOME/.bashrc"
+link_file "$REPO_ROOT/scripts/te" "$HOME/.local/bin/te"
 link_generated_file "$STARSHIP_CONFIG_PATH" "$HOME/.config/starship.toml"
 link_file "$REPO_ROOT/dotfiles/shared/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_dir "$REPO_ROOT/dotfiles/shared/nvim" "$HOME/.config/nvim"

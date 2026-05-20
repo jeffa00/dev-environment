@@ -1,0 +1,638 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_source_path() {
+  local source_path
+  local source_dir
+  local target_path
+
+  source_path="$1"
+  while [ -L "$source_path" ]; do
+    source_dir="$(cd -P "$(dirname "$source_path")" && pwd)"
+    target_path="$(readlink "$source_path")"
+    if [[ "$target_path" != /* ]]; then
+      source_path="$source_dir/$target_path"
+    else
+      source_path="$target_path"
+    fi
+  done
+  printf '%s\n' "$source_path"
+}
+
+SOURCE_PATH="$(resolve_source_path "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE_PATH")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+source "$SCRIPT_DIR/lib/common.sh"
+source "$SCRIPT_DIR/lib/private-overrides.sh"
+
+command_exists_or_warn() {
+  local command_name
+  command_name="$1"
+  if command_exists "$command_name"; then
+    printf 'ok    %s\n' "$command_name"
+    return 0
+  fi
+  printf 'warn  %s is not available on PATH\n' "$command_name"
+  return 1
+}
+
+print_root_help() {
+  cat <<'EOF'
+GatorTeef CLI
+
+USAGE
+  te <command> [args]
+  te --help
+
+BOOTSTRAP
+  setup         Run environment setup and maintenance flows
+  doctor        Diagnose environment health and managed paths
+  paths         Show repo roots, managed paths, and generated config locations
+
+SESSIONS
+  tmux          Run the tmux workspace/session wrapper
+
+CLI
+  completion    Print shell completion for bash or zsh
+  version       Show CLI version details
+  help          Show help for a command
+
+EXAMPLES
+  te setup
+  te setup --dry-run --install-dotnet
+  te tmux list
+  te tmux start public-day
+  te doctor
+  te paths
+
+Run 'te help <command>' for command-specific help.
+EOF
+}
+
+print_setup_help() {
+  cat <<'EOF'
+Run environment setup and maintenance flows.
+
+USAGE
+  te setup [--dry-run] [--install-tmuxinator] [--install-dotnet] [--enable-dotnet-nvim] [--apply-windows-terminal]
+
+OPTIONS
+  -h, --help                Show this help text
+  -n, --dry-run             Preview actions without making changes
+      --install-tmuxinator  Install the optional tmux workspace backend
+      --install-dotnet      Install the optional .NET SDK layer
+      --enable-dotnet-nvim  Enable the optional Neovim .NET layer
+      --apply-windows-terminal
+                            Apply the tracked Windows Terminal settings in WSL
+
+EXAMPLES
+  te setup
+  te setup --dry-run
+  te setup --install-tmuxinator
+  te setup --install-dotnet --enable-dotnet-nvim
+EOF
+}
+
+print_tmux_help() {
+  cat <<'EOF'
+Run the tmux workspace/session wrapper.
+
+USAGE
+  te tmux
+  te tmux list
+  te tmux start <name> [name...]
+  te tmux <name> [name...]
+
+BEHAVIOR
+  Running with no arguments loads defaults from the sibling private overlay repo when configured.
+  Running with plain names is shorthand for 'start'.
+
+EXAMPLES
+  te tmux list
+  te tmux start public-day
+  te tmux dev-environment
+  te tmux
+EOF
+}
+
+print_doctor_help() {
+  cat <<'EOF'
+Diagnose environment health and managed paths.
+
+USAGE
+  te doctor
+
+EXAMPLES
+  te doctor
+EOF
+}
+
+print_paths_help() {
+  cat <<'EOF'
+Show repo roots, managed paths, and generated config locations.
+
+USAGE
+  te paths
+
+EXAMPLES
+  te paths
+EOF
+}
+
+print_completion_help() {
+  cat <<'EOF'
+Print shell completion scripts.
+
+USAGE
+  te completion <shell>
+
+SUPPORTED SHELLS
+  bash
+  zsh
+
+EXAMPLES
+  te completion bash
+  te completion zsh
+EOF
+}
+
+print_version() {
+  local repo_name
+  local git_sha
+
+  repo_name="$(basename "$REPO_ROOT")"
+  if command_exists git && git -C "$REPO_ROOT" rev-parse --short HEAD >/dev/null 2>&1; then
+    git_sha="$(git -C "$REPO_ROOT" rev-parse --short HEAD)"
+    printf 'GatorTeef (te) - repo: %s - revision: %s\n' "$repo_name" "$git_sha"
+  else
+    printf 'GatorTeef (te) - repo: %s\n' "$repo_name"
+  fi
+}
+
+tmux_entry_names() {
+  bash "$SCRIPT_DIR/tmux-session.sh" list 2>/dev/null | awk '
+    /^Sessions:/ {in_list=1; next}
+    /^Workspaces:/ {in_list=1; next}
+    /^Defaults file:/ {in_list=0; next}
+    in_list && /^  - / {sub(/^  - /, ""); print}
+  ' | sort -u
+}
+
+print_paths() {
+  local platform
+  local private_repo_root
+
+  platform="$(detect_platform)"
+  private_repo_root="$(dev_env_private_repo_root)"
+
+  printf 'CLI\n'
+  printf '  te source: %s\n' "$SOURCE_PATH"
+  if command_exists te; then
+    printf '  te on PATH: %s\n' "$(command -v te)"
+  else
+    printf '  te on PATH: not found\n'
+  fi
+
+  printf '\nRepositories\n'
+  printf '  public repo root: %s\n' "$REPO_ROOT"
+  printf '  private repo root: %s\n' "$private_repo_root"
+  if [ -d "$private_repo_root" ]; then
+    printf '  private repo present: yes\n'
+  else
+    printf '  private repo present: no\n'
+  fi
+
+  printf '\nEnvironment\n'
+  printf '  detected platform: %s\n' "$platform"
+  printf '  managed config root: %s\n' "$(managed_dev_environment_root)"
+  printf '  te PATH target: %s\n' "$HOME/.local/bin/te"
+
+  printf '\nManaged home paths\n'
+  printf '  tmux: %s\n' "$HOME/.tmux.conf"
+  printf '  starship: %s\n' "$HOME/.config/starship.toml"
+  printf '  nvim: %s\n' "$HOME/.config/nvim"
+  case "$platform" in
+    macos)
+      printf '  zprofile: %s\n' "$HOME/.zprofile"
+      printf '  zshrc: %s\n' "$HOME/.zshrc"
+      printf '  ghostty: %s\n' "$HOME/.config/ghostty/config.ghostty"
+      ;;
+    linux|wsl)
+      printf '  profile: %s\n' "$HOME/.profile"
+      printf '  bashrc: %s\n' "$HOME/.bashrc"
+      if [ "$platform" = "linux" ]; then
+        printf '  ghostty: %s\n' "$HOME/.config/ghostty/config.ghostty"
+      fi
+      ;;
+  esac
+
+  printf '\nGenerated/private config paths\n'
+  printf '  generated starship: %s\n' "$(generated_config_path "starship.toml")"
+  printf '  private tmux fragment: %s\n' "$(managed_private_override_path "dotfiles/shared/tmux/tmux.conf")"
+  case "$platform" in
+    macos)
+      printf '  generated ghostty: %s\n' "$(generated_config_path "ghostty-macos.config.ghostty")"
+      printf '  private zprofile fragment: %s\n' "$(managed_private_override_path "dotfiles/macos/zsh/.zprofile")"
+      printf '  private zshrc fragment: %s\n' "$(managed_private_override_path "dotfiles/macos/zsh/.zshrc")"
+      ;;
+    linux)
+      printf '  generated ghostty: %s\n' "$(generated_config_path "ghostty-linux.config.ghostty")"
+      printf '  private profile fragment: %s\n' "$(managed_private_override_path "dotfiles/linux/bash/.profile")"
+      printf '  private bashrc fragment: %s\n' "$(managed_private_override_path "dotfiles/linux/bash/.bashrc")"
+      ;;
+    wsl)
+      printf '  private profile fragment: %s\n' "$(managed_private_override_path "dotfiles/linux/bash/.profile")"
+      printf '  private bashrc fragment: %s\n' "$(managed_private_override_path "dotfiles/linux/bash/.bashrc")"
+      ;;
+  esac
+}
+
+run_doctor() {
+  local platform
+  local private_repo_root
+  local issues
+
+  issues=0
+  platform="$(detect_platform)"
+  private_repo_root="$(dev_env_private_repo_root)"
+
+  printf 'Platform\n'
+  case "$platform" in
+    macos|linux|wsl)
+      printf 'ok    detected platform: %s\n' "$platform"
+      ;;
+    *)
+      printf 'warn  unsupported platform detected: %s\n' "$platform"
+      issues=$((issues + 1))
+      ;;
+  esac
+
+  printf '\nRepositories\n'
+  if [ -d "$REPO_ROOT" ]; then
+    printf 'ok    public repo root: %s\n' "$REPO_ROOT"
+  else
+    printf 'warn  public repo root missing: %s\n' "$REPO_ROOT"
+    issues=$((issues + 1))
+  fi
+  if [ -f "$SCRIPT_DIR/setup.sh" ]; then
+    printf 'ok    setup backend found\n'
+  else
+    printf 'warn  setup backend missing: %s\n' "$SCRIPT_DIR/setup.sh"
+    issues=$((issues + 1))
+  fi
+  if [ -f "$SCRIPT_DIR/tmux-session.sh" ]; then
+    printf 'ok    tmux backend found\n'
+  else
+    printf 'warn  tmux backend missing: %s\n' "$SCRIPT_DIR/tmux-session.sh"
+    issues=$((issues + 1))
+  fi
+  if [ -d "$private_repo_root" ]; then
+    printf 'ok    private repo present: %s\n' "$private_repo_root"
+  else
+    printf 'warn  private repo not found: %s\n' "$private_repo_root"
+  fi
+
+  printf '\nCLI and tools\n'
+  if command_exists te; then
+    printf 'ok    te is on PATH\n'
+  else
+    printf 'warn  te is not on PATH yet; re-run setup or link %s to ~/.local/bin/te\n' "$SCRIPT_DIR/te"
+  fi
+  command_exists_or_warn tmux || issues=$((issues + 1))
+  command_exists_or_warn nvim || issues=$((issues + 1))
+  command_exists_or_warn starship || issues=$((issues + 1))
+  if [ "$platform" = "macos" ] || [ "$platform" = "linux" ]; then
+    command_exists_or_warn ghostty || issues=$((issues + 1))
+  fi
+  if command_exists tmuxinator; then
+    printf 'ok    tmuxinator\n'
+  else
+    printf 'warn  tmuxinator not installed (optional for te tmux start)\n'
+  fi
+
+  printf '\nManaged paths\n'
+  if [ -L "$HOME/.tmux.conf" ] || [ -f "$HOME/.tmux.conf" ]; then
+    printf 'ok    ~/.tmux.conf\n'
+  else
+    printf 'warn  ~/.tmux.conf is missing\n'
+    issues=$((issues + 1))
+  fi
+  if [ -L "$HOME/.config/starship.toml" ] || [ -f "$HOME/.config/starship.toml" ]; then
+    printf 'ok    ~/.config/starship.toml\n'
+  else
+    printf 'warn  ~/.config/starship.toml is missing\n'
+    issues=$((issues + 1))
+  fi
+  if [ -L "$HOME/.config/nvim" ] || [ -d "$HOME/.config/nvim" ]; then
+    printf 'ok    ~/.config/nvim\n'
+  else
+    printf 'warn  ~/.config/nvim is missing\n'
+    issues=$((issues + 1))
+  fi
+  if [ -L "$HOME/.local/bin/te" ] || [ -f "$HOME/.local/bin/te" ]; then
+    printf 'ok    ~/.local/bin/te\n'
+  else
+    printf 'warn  ~/.local/bin/te is missing\n'
+  fi
+
+  case "$platform" in
+    macos)
+      if [ -L "$HOME/.zprofile" ] || [ -f "$HOME/.zprofile" ]; then
+        printf 'ok    ~/.zprofile\n'
+      else
+        printf 'warn  ~/.zprofile is missing\n'
+        issues=$((issues + 1))
+      fi
+      if [ -L "$HOME/.zshrc" ] || [ -f "$HOME/.zshrc" ]; then
+        printf 'ok    ~/.zshrc\n'
+      else
+        printf 'warn  ~/.zshrc is missing\n'
+        issues=$((issues + 1))
+      fi
+      if [ -L "$HOME/.config/ghostty/config.ghostty" ] || [ -f "$HOME/.config/ghostty/config.ghostty" ]; then
+        printf 'ok    ~/.config/ghostty/config.ghostty\n'
+      else
+        printf 'warn  ~/.config/ghostty/config.ghostty is missing\n'
+        issues=$((issues + 1))
+      fi
+      ;;
+    linux|wsl)
+      if [ -L "$HOME/.profile" ] || [ -f "$HOME/.profile" ]; then
+        printf 'ok    ~/.profile\n'
+      else
+        printf 'warn  ~/.profile is missing\n'
+        issues=$((issues + 1))
+      fi
+      if [ -L "$HOME/.bashrc" ] || [ -f "$HOME/.bashrc" ]; then
+        printf 'ok    ~/.bashrc\n'
+      else
+        printf 'warn  ~/.bashrc is missing\n'
+        issues=$((issues + 1))
+      fi
+      if [ "$platform" = "linux" ]; then
+        if [ -L "$HOME/.config/ghostty/config.ghostty" ] || [ -f "$HOME/.config/ghostty/config.ghostty" ]; then
+          printf 'ok    ~/.config/ghostty/config.ghostty\n'
+        else
+          printf 'warn  ~/.config/ghostty/config.ghostty is missing\n'
+          issues=$((issues + 1))
+        fi
+      fi
+      ;;
+  esac
+
+  printf '\nGenerated config\n'
+  if [ -f "$(generated_config_path "starship.toml")" ]; then
+    printf 'ok    generated starship config\n'
+  else
+    printf 'warn  generated starship config is missing\n'
+  fi
+  case "$platform" in
+    macos)
+      if [ -f "$(generated_config_path "ghostty-macos.config.ghostty")" ]; then
+        printf 'ok    generated macOS Ghostty config\n'
+      else
+        printf 'warn  generated macOS Ghostty config is missing\n'
+      fi
+      ;;
+    linux)
+      if [ -f "$(generated_config_path "ghostty-linux.config.ghostty")" ]; then
+        printf 'ok    generated Linux Ghostty config\n'
+      else
+        printf 'warn  generated Linux Ghostty config is missing\n'
+      fi
+      ;;
+  esac
+  if [ -f "$HOME/.config/dev-environment/dotnet.sh" ] && ! command_exists dotnet; then
+    printf 'warn  dotnet shell wiring exists but dotnet is not available on PATH\n'
+    issues=$((issues + 1))
+  fi
+
+  if [ "$issues" -eq 0 ]; then
+    printf '\nNo critical issues detected.\n'
+    return 0
+  fi
+
+  printf '\nDoctor found %s critical issue(s).\n' "$issues"
+  printf 'Next steps:\n'
+  printf '  te setup --dry-run\n'
+  printf '  te paths\n'
+  return 1
+}
+
+print_bash_completion() {
+  cat <<'EOF'
+_te_completion() {
+  local cur prev command subcommand
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  command="${COMP_WORDS[1]}"
+  subcommand="${COMP_WORDS[2]}"
+
+  if [[ ${COMP_CWORD} -eq 1 ]]; then
+    COMPREPLY=( $(compgen -W "setup tmux doctor paths completion version help" -- "$cur") )
+    return
+  fi
+
+  case "$command" in
+    help)
+      COMPREPLY=( $(compgen -W "setup tmux doctor paths completion version" -- "$cur") )
+      ;;
+    setup)
+      COMPREPLY=( $(compgen -W "--help -h --dry-run -n --install-tmuxinator --install-dotnet --enable-dotnet-nvim --apply-windows-terminal" -- "$cur") )
+      ;;
+    tmux)
+      if [[ ${COMP_CWORD} -eq 2 ]]; then
+        COMPREPLY=( $(compgen -W "list start help $(_te_tmux_names)" -- "$cur") )
+      elif [[ "$subcommand" == "start" && ${COMP_CWORD} -ge 3 ]]; then
+        COMPREPLY=( $(compgen -W "$(_te_tmux_names)" -- "$cur") )
+      elif [[ "$subcommand" != "list" && "$subcommand" != "help" && ${COMP_CWORD} -ge 3 ]]; then
+        COMPREPLY=( $(compgen -W "$(_te_tmux_names)" -- "$cur") )
+      fi
+      ;;
+    completion)
+      COMPREPLY=( $(compgen -W "bash zsh" -- "$cur") )
+      ;;
+  esac
+}
+
+_te_tmux_names() {
+  te __complete_tmux_names
+}
+
+complete -F _te_completion te
+EOF
+}
+
+print_zsh_completion() {
+  cat <<'EOF'
+autoload -U +X bashcompinit && bashcompinit
+_te_completion() {
+  local cur prev command subcommand
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  command="${COMP_WORDS[1]}"
+  subcommand="${COMP_WORDS[2]}"
+
+  if [[ ${COMP_CWORD} -eq 1 ]]; then
+    COMPREPLY=( $(compgen -W "setup tmux doctor paths completion version help" -- "$cur") )
+    return
+  fi
+
+  case "$command" in
+    help)
+      COMPREPLY=( $(compgen -W "setup tmux doctor paths completion version" -- "$cur") )
+      ;;
+    setup)
+      COMPREPLY=( $(compgen -W "--help -h --dry-run -n --install-tmuxinator --install-dotnet --enable-dotnet-nvim --apply-windows-terminal" -- "$cur") )
+      ;;
+    tmux)
+      if [[ ${COMP_CWORD} -eq 2 ]]; then
+        COMPREPLY=( $(compgen -W "list start help $(_te_tmux_names)" -- "$cur") )
+      elif [[ "$subcommand" == "start" && ${COMP_CWORD} -ge 3 ]]; then
+        COMPREPLY=( $(compgen -W "$(_te_tmux_names)" -- "$cur") )
+      elif [[ "$subcommand" != "list" && "$subcommand" != "help" && ${COMP_CWORD} -ge 3 ]]; then
+        COMPREPLY=( $(compgen -W "$(_te_tmux_names)" -- "$cur") )
+      fi
+      ;;
+    completion)
+      COMPREPLY=( $(compgen -W "bash zsh" -- "$cur") )
+      ;;
+  esac
+}
+
+_te_tmux_names() {
+  te __complete_tmux_names
+}
+
+complete -F _te_completion te
+EOF
+}
+
+run_setup() {
+  local dry_run
+
+  dry_run=0
+  for arg in "$@"; do
+    if [ "$arg" = "--help" ] || [ "$arg" = "-h" ] || [ "$arg" = "help" ]; then
+      print_setup_help
+      return 0
+    fi
+    if [ "$arg" = "--dry-run" ] || [ "$arg" = "-n" ]; then
+      dry_run=1
+    fi
+  done
+
+  bash "$SCRIPT_DIR/setup.sh" "$@"
+
+  if [ "$dry_run" -eq 0 ]; then
+    printf '\nNext steps:\n'
+    printf '  te doctor\n'
+    printf '  te tmux list\n'
+  fi
+}
+
+run_tmux() {
+  if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "help" ]; }; then
+    print_tmux_help
+    return 0
+  fi
+  bash "$SCRIPT_DIR/tmux-session.sh" "$@"
+}
+
+run_completion() {
+  local shell_name
+
+  shell_name="${1:-}"
+  case "$shell_name" in
+    bash)
+      print_bash_completion
+      ;;
+    zsh)
+      print_zsh_completion
+      ;;
+    ""|-h|--help|help)
+      print_completion_help
+      ;;
+    *)
+      die "Unsupported shell for completion: $shell_name"
+      ;;
+  esac
+}
+
+run_help() {
+  case "${1:-}" in
+    ""|-h|--help)
+      print_root_help
+      ;;
+    setup)
+      print_setup_help
+      ;;
+    tmux)
+      print_tmux_help
+      ;;
+    doctor)
+      print_doctor_help
+      ;;
+    paths)
+      print_paths_help
+      ;;
+    completion)
+      print_completion_help
+      ;;
+    version)
+      print_version
+      ;;
+    *)
+      die "Unknown help topic: $1"
+      ;;
+  esac
+}
+
+COMMAND="${1:-}"
+if [ "$#" -gt 0 ]; then
+  shift
+fi
+
+case "$COMMAND" in
+  ""|-h|--help)
+    print_root_help
+    ;;
+  --version|version)
+    print_version
+    ;;
+  help)
+    run_help "${1:-}"
+    ;;
+  setup)
+    run_setup "$@"
+    ;;
+  tmux)
+    run_tmux "$@"
+    ;;
+  doctor)
+    if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "help" ]; }; then
+      print_doctor_help
+    else
+      run_doctor
+    fi
+    ;;
+  paths)
+    if [ "$#" -gt 0 ] && { [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "help" ]; }; then
+      print_paths_help
+    else
+      print_paths
+    fi
+    ;;
+  completion)
+    run_completion "${1:-}"
+    ;;
+  __complete_tmux_names)
+    tmux_entry_names
+    ;;
+  *)
+    die "Unknown command: $COMMAND. Run 'te --help' for usage."
+    ;;
+esac

@@ -20,7 +20,13 @@ This layer is optional.
 
 ## Public interface
 
-The public command is:
+The preferred public command is:
+
+```bash
+te tmux
+```
+
+The existing backend script remains available during the transition:
 
 ```bash
 scripts/tmux-session.sh
@@ -29,11 +35,11 @@ scripts/tmux-session.sh
 Supported forms:
 
 ```bash
-scripts/tmux-session.sh list
-scripts/tmux-session.sh start <name>
-scripts/tmux-session.sh start <name> <name>
-scripts/tmux-session.sh <name>
-scripts/tmux-session.sh
+te tmux list
+te tmux start <name>
+te tmux start <name> <name>
+te tmux <name>
+te tmux
 ```
 
 Behavior:
@@ -54,7 +60,7 @@ The wrapper is intentionally the stable contract. If the backend changes later, 
 Install tmuxinator only if you want this feature:
 
 ```bash
-bash scripts/setup.sh --install-tmuxinator
+scripts/te setup --install-tmuxinator
 ```
 
 Platform notes:
@@ -173,7 +179,7 @@ That means the sibling private overlay repo either does not exist or does not ha
 Use:
 
 ```bash
-scripts/tmux-session.sh list
+te tmux list
 ```
 
 and start a public template explicitly until the private overlay is ready.

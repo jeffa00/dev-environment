@@ -22,25 +22,32 @@ Platform-specific prerequisites:
 Standard run:
 
 ```bash
-bash scripts/setup.sh
+scripts/te setup
 ```
 
 Preview the work first:
 
 ```bash
-bash scripts/setup.sh --dry-run
+scripts/te setup --dry-run
+```
+
+After setup links `te` into `~/.local/bin`, you can run the same commands from anywhere:
+
+```bash
+te setup
+te setup --dry-run
 ```
 
 On WSL, also link the tracked Windows Terminal settings template:
 
 ```bash
-bash scripts/setup.sh --apply-windows-terminal
+scripts/te setup --apply-windows-terminal
 ```
 
 You can combine flags when needed, for example:
 
 ```bash
-bash scripts/setup.sh --dry-run --apply-windows-terminal
+scripts/te setup --dry-run --apply-windows-terminal
 ```
 
 Optional .NET 10 SDK install:
@@ -74,7 +81,7 @@ Phase 8 adds an optional tmux workspace layer on top of the base shell/editor se
 Install the optional backend:
 
 ```bash
-bash scripts/setup.sh --install-tmuxinator
+scripts/te setup --install-tmuxinator
 ```
 
 The current backend target is tmuxinator:
@@ -87,9 +94,9 @@ On macOS, if you actively manage Ruby with `rbenv` or `rvm`, review the tmux wor
 Once installed:
 
 ```bash
-scripts/tmux-session.sh list
-scripts/tmux-session.sh start public-day
-scripts/tmux-session.sh start dev-environment
+te tmux list
+te tmux start public-day
+te tmux start dev-environment
 ```
 
 Running the wrapper without arguments is also supported, but only when you have configured defaults in a sibling private overlay repo.
@@ -105,7 +112,7 @@ Phase 9 adds an optional .NET SDK layer on top of the base environment.
 Enable it with:
 
 ```bash
-bash scripts/setup.sh --install-dotnet
+scripts/te setup --install-dotnet
 ```
 
 Current install path by platform:
@@ -121,7 +128,7 @@ For the opt-in .NET path, Ubuntu versions older than 22.04 are not supported.
 The editor integration is a second opt-in layer:
 
 ```bash
-bash scripts/setup.sh --enable-dotnet-nvim
+scripts/te setup --enable-dotnet-nvim
 ```
 
 - This enables the lightweight Neovim .NET path without changing the default editor experience for everyone.
@@ -131,8 +138,8 @@ bash scripts/setup.sh --enable-dotnet-nvim
 Common combinations:
 
 ```bash
-bash scripts/setup.sh --install-dotnet --enable-dotnet-nvim
-bash scripts/setup.sh --dry-run --install-dotnet --enable-dotnet-nvim
+scripts/te setup --install-dotnet --enable-dotnet-nvim
+scripts/te setup --dry-run --install-dotnet --enable-dotnet-nvim
 ```
 
 For the day-to-day .NET workflow after setup, see [`.NET in this environment`](../tutorial/dotnet.md).
@@ -260,6 +267,7 @@ Expect to do a few manual checks after the bootstrap completes:
 6. **Handle optional cleanup yourself** if needed. For example, removing Oh My Zsh is intentionally not part of this setup flow.
 7. **If you enabled tmux workspaces, review the public templates and configure your sibling private overlay repo** before relying on wrapper defaults.
 8. **If you use private overrides, re-run setup after editing the private repo** so generated files and managed links stay aligned.
+9. **Run `te doctor`** if you want a quick health check of repo discovery, managed paths, and tool availability.
 
 ## Expected result
 

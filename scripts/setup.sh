@@ -11,9 +11,34 @@ ENABLE_DOTNET_NVIM=0
 
 source "$SCRIPT_DIR/lib/common.sh"
 
+print_help() {
+  cat <<'EOF'
+Usage:
+  bash scripts/setup.sh [options]
+
+Options:
+  -h, --help                Show this help text
+  -n, --dry-run             Preview actions without making changes
+      --apply-windows-terminal
+                            Apply the tracked Windows Terminal settings in WSL
+      --install-tmuxinator  Install the optional tmux workspace backend
+      --install-dotnet      Install the optional .NET SDK layer
+      --enable-dotnet-nvim  Enable the optional Neovim .NET layer
+
+Examples:
+  bash scripts/setup.sh
+  bash scripts/setup.sh --dry-run
+  bash scripts/setup.sh --install-dotnet --enable-dotnet-nvim
+EOF
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dry-run)
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    -n|--dry-run)
       DRY_RUN=1
       ;;
     --apply-windows-terminal)

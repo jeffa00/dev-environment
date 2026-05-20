@@ -26,40 +26,47 @@ The setup links managed config into standard home-directory locations such as sh
 ## Quick start
 
 ```bash
-bash scripts/setup.sh
-bash scripts/setup.sh --dry-run
+scripts/te setup
+scripts/te setup --dry-run
+```
+
+After setup links `te` into `~/.local/bin`, you can run the same command from anywhere:
+
+```bash
+te setup
+te setup --dry-run
 ```
 
 Optional tmux workspace orchestration:
 
 ```bash
-bash scripts/setup.sh --install-tmuxinator
-scripts/tmux-session.sh list
-scripts/tmux-session.sh start public-day
+scripts/te setup --install-tmuxinator
+te tmux list
+te tmux start public-day
 ```
 
 Optional .NET 10 SDK install:
 
 ```bash
-bash scripts/setup.sh --install-dotnet
+scripts/te setup --install-dotnet
 ```
 
 Optional Neovim .NET layer:
 
 ```bash
-bash scripts/setup.sh --enable-dotnet-nvim
+scripts/te setup --enable-dotnet-nvim
 ```
 
 WSL can also link the tracked Windows Terminal settings template:
 
 ```bash
-bash scripts/setup.sh --apply-windows-terminal
-bash scripts/setup.sh --dry-run --apply-windows-terminal
+scripts/te setup --apply-windows-terminal
+scripts/te setup --dry-run --apply-windows-terminal
 ```
 
 ## Safe re-runs
 
-Re-running `scripts/setup.sh` is expected.
+Re-running `te setup` is expected.
 
 - existing correct symlinks are left in place
 - conflicting managed destinations are moved to timestamped `*.backup.YYYYMMDD-HHMMSS` paths before linking
@@ -84,6 +91,7 @@ Re-running `scripts/setup.sh` is expected.
 - tmux workspace orchestration is optional and uses generic public templates plus an optional sibling private overlay repo for personal defaults and private workspaces
 - base config overrides can also live in the sibling private repo; edit the private file and re-run `bash scripts/setup.sh` to apply it
 - when the sibling private repo exists, setup scaffolds missing private override files for the current platform without overwriting existing ones
+- `scripts/setup.sh` and `scripts/tmux-session.sh` remain as backend entry points, but `te` is now the preferred user-facing CLI
 
 ## Documentation
 

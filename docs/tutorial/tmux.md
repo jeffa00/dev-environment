@@ -75,9 +75,9 @@ tmux new -s my-project -c ~/src/my-project
 This repo also supports an optional wrapper for repeatable tmux startup:
 
 ```bash
-scripts/tmux-session.sh list
-scripts/tmux-session.sh start dev-environment
-scripts/tmux-session.sh start public-day
+te tmux list
+te tmux start dev-environment
+te tmux start public-day
 ```
 
 Use the wrapper when you want a predefined layout. Use plain `tmux new ...` when you want an ad hoc session.
@@ -98,7 +98,7 @@ The public repo should only contain generic session/workspace definitions.
 If you want a morning startup list such as "open my usual projects", keep that in a sibling private overlay repo rather than in the public repo. Running:
 
 ```bash
-scripts/tmux-session.sh
+te tmux
 ```
 
 should only rely on that private defaults file when it exists. Nothing in this setup auto-starts tmux workspaces on login or shell launch.
