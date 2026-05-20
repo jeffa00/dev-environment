@@ -49,6 +49,7 @@ fi
 
 log "Applying managed config"
 ensure_dir "$HOME/.config"
+scaffold_private_overrides_for_platform "macos"
 sync_optional_private_link \
   "dotfiles/shared/tmux/tmux.conf" \
   "$(managed_private_override_path "dotfiles/shared/tmux/tmux.conf")"

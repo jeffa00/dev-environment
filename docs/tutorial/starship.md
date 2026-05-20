@@ -226,6 +226,8 @@ Behavior:
 
 The private path is a full replacement, not an additive append, because TOML does not safely support duplicate-key merging.
 
+When setup scaffolds a brand-new private `dev-environment-private/dotfiles/shared/shell/starship.toml`, it starts by copying the shared baseline into that private file.
+
 After changing either source, re-run:
 
 ```bash

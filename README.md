@@ -83,6 +83,7 @@ Re-running `scripts/setup.sh` is expected.
 - Oh My Zsh removal is intentionally out of scope; only clean it up after the managed shell setup is working
 - tmux workspace orchestration is optional and uses generic public templates plus an optional sibling private overlay repo for personal defaults and private workspaces
 - base config overrides can also live in the sibling private repo; edit the private file and re-run `bash scripts/setup.sh` to apply it
+- when the sibling private repo exists, setup scaffolds missing private override files for the current platform without overwriting existing ones
 
 ## Documentation
 

@@ -31,6 +31,7 @@ install_nerd_font_ubuntu
 log "Applying managed config"
 ensure_dir "$HOME/.config"
 ensure_dir "$HOME/.config/ghostty"
+scaffold_private_overrides_for_platform "linux"
 sync_optional_private_link \
   "dotfiles/shared/tmux/tmux.conf" \
   "$(managed_private_override_path "dotfiles/shared/tmux/tmux.conf")"

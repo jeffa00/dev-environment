@@ -214,6 +214,8 @@ Workflow:
 2. Re-run `bash scripts/setup.sh`.
 3. Open a new shell or reload the tool that uses that config.
 
+When the private repo already exists, setup also creates any missing private override starter files for the current platform and the shared override files. Existing private files are left unchanged. For Starship, the scaffolded private `dotfiles/shared/shell/starship.toml` starts as a copy of the shared baseline so you can customize it incrementally.
+
 Behavior by file type:
 
 - tmux base config: public `~/.tmux.conf` loads the private fragment after the shared baseline

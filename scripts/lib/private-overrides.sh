@@ -10,6 +10,10 @@ dev_env_private_repo_root() {
   fi
 }
 
+private_repo_available() {
+  [ -d "$(dev_env_private_repo_root)" ]
+}
+
 private_override_file() {
   local relative_path
   local candidate
@@ -20,6 +24,149 @@ private_override_file() {
   if [ -f "$candidate" ]; then
     printf '%s\n' "$candidate"
   fi
+}
+
+write_private_override_scaffold_if_missing() {
+  local destination_path
+  local content
+
+  destination_path="$1"
+  content="$2"
+
+  if [ -e "$destination_path" ] || [ -L "$destination_path" ]; then
+    log "Private override scaffold already exists: $destination_path"
+    return
+  fi
+
+  ensure_dir "$(dirname "$destination_path")"
+
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "Would create private override scaffold: $destination_path"
+    return
+  fi
+
+  printf '%s' "$content" > "$destination_path"
+  log "Created private override scaffold: $destination_path"
+}
+
+copy_private_override_scaffold_if_missing() {
+  local source_path
+  local destination_path
+
+  source_path="$1"
+  destination_path="$2"
+
+  if [ -e "$destination_path" ] || [ -L "$destination_path" ]; then
+    log "Private override scaffold already exists: $destination_path"
+    return
+  fi
+
+  ensure_dir "$(dirname "$destination_path")"
+
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "Would create private override scaffold from baseline: $destination_path"
+    return
+  fi
+
+  cp "$source_path" "$destination_path"
+  log "Created private override scaffold from baseline: $destination_path"
+}
+
+scaffold_private_override_file() {
+  local relative_path
+  local content
+
+  relative_path="$1"
+  content="$2"
+
+  write_private_override_scaffold_if_missing \
+    "$(dev_env_private_repo_root)/$relative_path" \
+    "$content"
+}
+
+scaffold_private_override_from_public_file() {
+  local relative_path
+
+  relative_path="$1"
+
+  copy_private_override_scaffold_if_missing \
+    "$REPO_ROOT/$relative_path" \
+    "$(dev_env_private_repo_root)/$relative_path"
+}
+
+scaffold_shared_private_overrides() {
+  scaffold_private_override_file \
+    "dotfiles/shared/tmux/tmux.conf" \
+    $'# Private tmux overrides loaded after the public baseline.\n'
+
+  scaffold_private_override_from_public_file \
+    "dotfiles/shared/shell/starship.toml"
+}
+
+scaffold_macos_private_overrides() {
+  scaffold_private_override_file \
+    "dotfiles/macos/zsh/.zprofile" \
+    $'# Private macOS zprofile overrides loaded near the end of the public baseline.\n'
+
+  scaffold_private_override_file \
+    "dotfiles/macos/zsh/.zshrc" \
+    $'# Private macOS zshrc overrides loaded near the end of the public baseline.\n'
+
+  scaffold_private_override_file \
+    "dotfiles/macos/ghostty/config.ghostty" \
+    $'# Private macOS Ghostty overrides appended after the public baseline.\n'
+}
+
+scaffold_linux_private_overrides() {
+  scaffold_private_override_file \
+    "dotfiles/linux/bash/.profile" \
+    $'# Private Linux profile overrides loaded near the end of the public baseline.\n'
+
+  scaffold_private_override_file \
+    "dotfiles/linux/bash/.bashrc" \
+    $'# Private Linux bashrc overrides loaded near the end of the public baseline.\n'
+
+  scaffold_private_override_file \
+    "dotfiles/linux/ghostty/config.ghostty" \
+    $'# Private Linux Ghostty overrides appended after the public baseline.\n'
+}
+
+scaffold_wsl_private_overrides() {
+  scaffold_private_override_file \
+    "dotfiles/linux/bash/.profile" \
+    $'# Private WSL profile overrides loaded near the end of the public baseline.\n'
+
+  scaffold_private_override_file \
+    "dotfiles/linux/bash/.bashrc" \
+    $'# Private WSL bashrc overrides loaded near the end of the public baseline.\n'
+}
+
+scaffold_private_overrides_for_platform() {
+  local platform
+
+  platform="$1"
+
+  if ! private_repo_available; then
+    log "Private repo not found; skipping private override scaffolding"
+    return
+  fi
+
+  scaffold_shared_private_overrides
+
+  case "$platform" in
+    macos)
+      scaffold_macos_private_overrides
+      ;;
+    linux)
+      scaffold_linux_private_overrides
+      ;;
+    wsl)
+      scaffold_wsl_private_overrides
+      ;;
+    *)
+      warn "Unknown platform for private override scaffolding: $platform"
+      ;;
+  esac
 }
 
 managed_dev_environment_root() {
